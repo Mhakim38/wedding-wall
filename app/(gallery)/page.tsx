@@ -21,6 +21,7 @@ function GalleryContent() {
   const sessionId = searchParams.get('sessionId');
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const [darkMode, setDarkMode] = useState(false);
 
   useEffect(() => {
@@ -32,9 +33,16 @@ function GalleryContent() {
         if (response.ok) {
           const data = await response.json();
           setPhotos(data);
+          setError('');
+        } else {
+          const errorData = await response.json();
+          setError(errorData.error || 'Failed to load photos');
+          setPhotos([]);
         }
-      } catch (error) {
-        console.error('Failed to fetch photos:', error);
+      } catch (err) {
+        console.error('Failed to fetch photos:', err);
+        setError('Network error: Check your connection and try again');
+        setPhotos([]);
       } finally {
         setLoading(false);
       }
@@ -99,6 +107,12 @@ function GalleryContent() {
         </div>
 
         {/* Gallery Grid - Masonry Layout */}
+        {error && (
+          <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+            <p className="text-red-700 dark:text-red-400 text-sm">{error}</p>
+          </div>
+        )}
+        
         {loading ? (
           <div className="text-center py-12">
             <p className="text-gray-600 dark:text-gray-400">Loading photos...</p>

@@ -85,7 +85,8 @@ function UploadContent() {
         });
 
         if (!response.ok) {
-          throw new Error('Failed to upload photo');
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Failed to upload photo');
         }
 
         setSuccess(true);
@@ -100,7 +101,8 @@ function UploadContent() {
       };
       reader.readAsDataURL(file);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Upload failed');
+      console.error('Upload error:', err);
+      setError(err instanceof Error ? err.message : 'Upload failed. Check your connection.');
       setLoading(false);
     }
   };

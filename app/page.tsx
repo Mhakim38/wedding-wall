@@ -50,22 +50,27 @@ export default function Home() {
     setLoading(true);
 
     try {
+      // Convert date string to ISO timestamp (date input gives YYYY-MM-DD, need full ISO)
+      const eventDateTime = new Date(eventDate).toISOString();
+
       const response = await fetch('/api/session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           eventName: coupleName,
-          eventDate,
+          eventDate: eventDateTime,
         }),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to create gallery');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to create gallery');
       }
 
       const session = await response.json();
       router.push(`/gallery?sessionId=${session.id}`);
     } catch (err) {
+      console.error('Error creating gallery:', err);
       setError(err instanceof Error ? err.message : 'Failed to create gallery');
     } finally {
       setLoading(false);
