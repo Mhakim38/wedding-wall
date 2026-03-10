@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMoon, faSun, faCamera, faHome } from '@fortawesome/free-solid-svg-icons';
@@ -16,7 +16,7 @@ interface Photo {
   uploadedAt: string;
 }
 
-export default function GalleryPage() {
+function GalleryContent() {
   const searchParams = useSearchParams();
   const sessionId = searchParams.get('sessionId');
   const [photos, setPhotos] = useState<Photo[]>([]);
@@ -141,5 +141,13 @@ export default function GalleryPage() {
         )}
       </main>
     </div>
+  );
+}
+
+export default function GalleryPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <GalleryContent />
+    </Suspense>
   );
 }

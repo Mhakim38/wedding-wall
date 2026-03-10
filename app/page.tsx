@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faCamera,
@@ -17,6 +18,59 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
 export default function Home() {
+  const router = useRouter();
+  const [joinCode, setJoinCode] = useState('');
+  const [coupleName, setCoupleName] = useState('');
+  const [eventDate, setEventDate] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleJoin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+
+    try {
+      router.push(`/join?code=${joinCode.toUpperCase()}`);
+    } catch (err) {
+      setError('Failed to join');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCreateGallery = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!coupleName || !eventDate) {
+      setError('Please fill in all fields');
+      return;
+    }
+
+    setError('');
+    setLoading(true);
+
+    try {
+      const response = await fetch('/api/session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          eventName: coupleName,
+          eventDate,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create gallery');
+      }
+
+      const session = await response.json();
+      router.push(`/gallery?sessionId=${session.id}`);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to create gallery');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-pink-50">
@@ -98,17 +152,27 @@ export default function Home() {
                 <p className="text-gray-600">
                   Got a wedding code? Enter it below to start uploading photos instantly.
                 </p>
-                <div className="space-y-3">
+                <form onSubmit={handleJoin} className="space-y-3">
                   <Input
                     type="text"
-                    placeholder="Enter wedding code (e.g., JOHN-2024)"
-                    maxLength={20}
+                    placeholder="Enter wedding code (e.g., ABC12345)"
+                    value={joinCode}
+                    onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
+                    maxLength={8}
+                    disabled={loading}
                   />
-                  <Button className="w-full h-12 text-base font-semibold">
+                  {error && (
+                    <p className="text-sm text-red-600">{error}</p>
+                  )}
+                  <Button 
+                    type="submit"
+                    className="w-full h-12 text-base font-semibold"
+                    disabled={!joinCode || loading}
+                  >
                     <FontAwesomeIcon icon={faArrowRight} className="mr-2 w-4 h-4" />
-                    Enter Gallery
+                    {loading ? 'Joining...' : 'Enter Gallery'}
                   </Button>
-                </div>
+                </form>
                 <p className="text-xs text-gray-500 text-center">
                   No registration needed • Works offline • Save to home screen
                 </p>
@@ -119,19 +183,32 @@ export default function Home() {
                 <p className="text-gray-600">
                   Set up a wedding gallery and get a unique code to share with guests.
                 </p>
-                <div className="space-y-3">
+                <form onSubmit={handleCreateGallery} className="space-y-3">
                   <Input
                     type="text"
                     placeholder="Couple's names (e.g., John & Sarah)"
+                    value={coupleName}
+                    onChange={(e) => setCoupleName(e.target.value)}
+                    disabled={loading}
                   />
                   <Input
                     type="date"
+                    value={eventDate}
+                    onChange={(e) => setEventDate(e.target.value)}
+                    disabled={loading}
                   />
-                  <Button className="w-full h-12 text-base font-semibold">
+                  {error && (
+                    <p className="text-sm text-red-600">{error}</p>
+                  )}
+                  <Button 
+                    type="submit"
+                    className="w-full h-12 text-base font-semibold"
+                    disabled={!coupleName || !eventDate || loading}
+                  >
                     <FontAwesomeIcon icon={faCamera} className="mr-2 w-4 h-4" />
-                    Create Gallery
+                    {loading ? 'Creating...' : 'Create Gallery'}
                   </Button>
-                </div>
+                </form>
                 <p className="text-xs text-gray-500 text-center">
                   Your gallery code will be generated instantly
                 </p>
