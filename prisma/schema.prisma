@@ -1,0 +1,87 @@
+// Prisma schema for Wedding Wall
+// Database: Supabase (PostgreSQL)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Wedding session (event identifier)
+model WeddingSession {
+  id        String   @id @default(cuid())
+  code      String   @unique @db.VarChar(8)  // Short PIN code (e.g., "WED2024")
+  eventName String
+  eventDate DateTime
+  createdAt DateTime @default(now())
+  expiresAt DateTime // When the session closes
+
+  // Relations
+  guests  Guest[]
+  photos  Photo[]
+
+  @@index([code])
+  @@index([createdAt])
+}
+
+// Wedding guest (photo uploader)
+model Guest {
+  id           String   @id @default(cuid())
+  sessionId    String
+  name         String
+  email        String?
+  createdAt    DateTime @default(now())
+  lastActivity DateTime @default(now())
+
+  // Relations
+  session WeddingSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  photos  Photo[]
+
+  @@unique([sessionId, email])
+  @@index([sessionId])
+}
+
+// Wedding photo (uploaded image)
+model Photo {
+  id            String   @id @default(cuid())
+  sessionId     String
+  guestId       String
+  title         String?
+  description   String?
+  s3Url         String   // AWS S3 URL
+  s3Key         String   // S3 object key (for deletion)
+  thumbnailUrl  String?  // Generated thumbnail
+  uploadedAt    DateTime @default(now())
+
+  // Metadata
+  width         Int?
+  height        Int?
+  fileSize      Int?
+  mimeType      String?
+
+  // Relations
+  session WeddingSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  guest   Guest          @relation(fields: [guestId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId])
+  @@index([guestId])
+  @@index([uploadedAt])
+}
+
+// Upload tokens (for S3 pre-signed URLs)
+model UploadToken {
+  id        String   @id @default(cuid())
+  sessionId String
+  guestId   String
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  used      Boolean  @default(false)
+
+  @@index([sessionId])
+  @@index([guestId])
+  @@index([expiresAt])
+}
