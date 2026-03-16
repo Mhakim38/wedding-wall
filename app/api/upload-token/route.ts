@@ -4,11 +4,11 @@ import { generatePresignedUploadUrl } from '@/lib/s3-helpers';
 
 export async function POST(request: NextRequest) {
   try {
-    const { sessionId, guestId, fileName, contentType } = await request.json();
+    const { sessionId, guestId, guestName, fileName, contentType } = await request.json();
 
-    if (!sessionId || !guestId || !fileName || !contentType) {
+    if (!sessionId || !fileName || !contentType) {
       return NextResponse.json(
-        { error: 'Missing required fields: sessionId, guestId, fileName, contentType' },
+        { error: 'Missing required fields: sessionId, fileName, contentType' },
         { status: 400 }
       );
     }
@@ -29,6 +29,34 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: 'Session has expired' },
         { status: 410 }
+      );
+    }
+
+    // If guestName provided, find or create guest
+    let finalGuestId = guestId;
+    if (guestName && !guestId) {
+      let guest = await prisma.guest.findFirst({
+        where: {
+          sessionId,
+          name: guestName,
+        },
+      });
+
+      if (!guest) {
+        guest = await prisma.guest.create({
+          data: {
+            sessionId,
+            name: guestName,
+          },
+        });
+      }
+      finalGuestId = guest.id;
+    }
+
+    if (!finalGuestId) {
+      return NextResponse.json(
+        { error: 'Guest ID or guest name required' },
+        { status: 400 }
       );
     }
 
@@ -54,7 +82,7 @@ export async function POST(request: NextRequest) {
     const uploadToken = await prisma.uploadToken.create({
       data: {
         sessionId,
-        guestId,
+        guestId: finalGuestId,
         token: s3Key, // Use S3 key as token for reference
         expiresAt: new Date(Date.now() + 15 * 60 * 1000), // 15 minutes
       },

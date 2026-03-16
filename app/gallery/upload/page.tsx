@@ -70,7 +70,7 @@ function UploadContent() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           sessionId,
-          guestId: `guest-${Date.now()}`, // Generate guest ID
+          guestName, // Send guest name to create/find guest
           fileName: file.name,
           contentType: file.type,
         }),

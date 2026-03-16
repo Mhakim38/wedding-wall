@@ -31,7 +31,7 @@ export default function Home() {
     setLoading(true);
 
     try {
-      router.push(`/join?code=${joinCode.toUpperCase()}`);
+      router.push(`/auth/join?code=${joinCode.toUpperCase()}`);
     } catch (err) {
       setError('Failed to join');
     } finally {
