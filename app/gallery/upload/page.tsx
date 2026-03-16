@@ -64,56 +64,20 @@ function UploadContent() {
     setError('');
 
     try {
-      // Step 1: Get pre-signed upload URL from backend
-      const tokenResponse = await fetch('/api/upload-token', {
+      // Upload file to backend (which uploads to S3)
+      const formData = new FormData();
+      formData.append('sessionId', sessionId);
+      formData.append('guestName', guestName);
+      formData.append('file', file);
+
+      const uploadResponse = await fetch('/api/upload', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          sessionId,
-          guestName, // Send guest name to create/find guest
-          fileName: file.name,
-          contentType: file.type,
-        }),
-      });
-
-      if (!tokenResponse.ok) {
-        const errorData = await tokenResponse.json();
-        throw new Error(errorData.error || 'Failed to get upload URL');
-      }
-
-      const { uploadUrl, s3Key } = await tokenResponse.json();
-
-      // Step 2: Upload file directly to S3
-      const uploadResponse = await fetch(uploadUrl, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': file.type,
-        },
-        body: file,
+        body: formData,
       });
 
       if (!uploadResponse.ok) {
-        throw new Error('Failed to upload to S3');
-      }
-
-      // Step 3: Create photo record in database
-      const photoResponse = await fetch('/api/photos', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          sessionId,
-          guestName,
-          s3Key, // Use S3 key instead of base64
-          width: 1920, // Default dimensions
-          height: 1080,
-          fileSize: file.size,
-          mimeType: file.type,
-        }),
-      });
-
-      if (!photoResponse.ok) {
-        const errorData = await photoResponse.json();
-        throw new Error(errorData.error || 'Failed to save photo record');
+        const errorData = await uploadResponse.json();
+        throw new Error(errorData.error || 'Failed to upload photo');
       }
 
       setSuccess(true);
