@@ -64,42 +64,67 @@ function UploadContent() {
     setError('');
 
     try {
-      // In Phase 7, we'll upload directly to S3
-      // For now, we'll create a placeholder using a data URL
-      const reader = new FileReader();
-      reader.onload = async (event) => {
-        const base64 = event.target?.result as string;
+      // Step 1: Get pre-signed upload URL from backend
+      const tokenResponse = await fetch('/api/upload-token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sessionId,
+          guestId: `guest-${Date.now()}`, // Generate guest ID
+          fileName: file.name,
+          contentType: file.type,
+        }),
+      });
 
-        const response = await fetch('/api/photos', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            sessionId,
-            guestName,
-            photoUrl: base64, // In Phase 7: S3 URL
-            width: 800,
-            height: 600,
-            fileSize: file.size,
-            mimeType: file.type,
-          }),
-        });
+      if (!tokenResponse.ok) {
+        const errorData = await tokenResponse.json();
+        throw new Error(errorData.error || 'Failed to get upload URL');
+      }
 
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || 'Failed to upload photo');
-        }
+      const { uploadUrl, s3Key } = await tokenResponse.json();
 
-        setSuccess(true);
-        setGuestName('');
-        setFile(null);
-        setPreview(null);
+      // Step 2: Upload file directly to S3
+      const uploadResponse = await fetch(uploadUrl, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': file.type,
+        },
+        body: file,
+      });
 
-        // Redirect back to gallery after 2 seconds
-        setTimeout(() => {
-          router.push(`/gallery?sessionId=${sessionId}`);
-        }, 2000);
-      };
-      reader.readAsDataURL(file);
+      if (!uploadResponse.ok) {
+        throw new Error('Failed to upload to S3');
+      }
+
+      // Step 3: Create photo record in database
+      const photoResponse = await fetch('/api/photos', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sessionId,
+          guestName,
+          s3Key, // Use S3 key instead of base64
+          width: 1920, // Default dimensions
+          height: 1080,
+          fileSize: file.size,
+          mimeType: file.type,
+        }),
+      });
+
+      if (!photoResponse.ok) {
+        const errorData = await photoResponse.json();
+        throw new Error(errorData.error || 'Failed to save photo record');
+      }
+
+      setSuccess(true);
+      setGuestName('');
+      setFile(null);
+      setPreview(null);
+
+      // Redirect back to gallery after 2 seconds
+      setTimeout(() => {
+        router.push(`/gallery?sessionId=${sessionId}`);
+      }, 2000);
     } catch (err) {
       console.error('Upload error:', err);
       setError(err instanceof Error ? err.message : 'Upload failed. Check your connection.');
