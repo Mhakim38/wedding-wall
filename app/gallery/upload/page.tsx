@@ -99,15 +99,15 @@ function UploadContent() {
   if (success) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-pink-50 dark:from-gray-900 dark:to-gray-800 flex flex-col items-center justify-center p-4">
-        <div className="text-center space-y-4">
+        <div className="text-center space-y-6 max-w-md">
           <FontAwesomeIcon
             icon={faCheckCircle}
-            className="w-16 h-16 text-green-500 mx-auto"
+            className="w-20 h-20 text-green-500 mx-auto"
           />
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+          <h1 className="text-4xl font-bold text-gray-900 dark:text-white" style={{ fontFamily: 'var(--font-playfair)' }}>
             Photo Uploaded!
           </h1>
-          <p className="text-gray-600 dark:text-gray-400">
+          <p className="text-lg text-gray-700 dark:text-gray-300 font-medium">
             Redirecting to gallery...
           </p>
         </div>
@@ -118,14 +118,14 @@ function UploadContent() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-pink-50 dark:from-gray-900 dark:to-gray-800">
       {/* Header */}
-      <header className="sticky top-0 z-40 backdrop-blur-sm border-b border-gray-200 dark:border-gray-800">
-        <div className="max-w-2xl mx-auto px-4 py-4 flex items-center justify-between">
+      <header className="sticky top-0 z-40 backdrop-blur-sm border-b border-gray-200 dark:border-gray-800 bg-white/80 dark:bg-gray-900/80">
+        <div className="max-w-2xl mx-auto px-6 py-6 flex items-center justify-between">
           <Link href={`/gallery?sessionId=${sessionId}`}>
-            <Button variant="ghost" size="icon">
-              <FontAwesomeIcon icon={faArrowLeft} className="w-5 h-5" />
+            <Button variant="ghost" size="icon" className="hover:bg-orange-50 dark:hover:bg-gray-800">
+              <FontAwesomeIcon icon={faArrowLeft} className="w-5 h-5 text-gray-700 dark:text-white" />
             </Button>
           </Link>
-          <h1 className="text-xl font-bold text-gray-900 dark:text-white">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white tracking-tight" style={{ fontFamily: 'var(--font-playfair)' }}>
             Upload Photo
           </h1>
           <div className="w-10" />
@@ -133,11 +133,11 @@ function UploadContent() {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-2xl mx-auto px-4 py-8">
-        <form onSubmit={handleUpload} className="space-y-6">
+      <main className="max-w-2xl mx-auto px-6 py-12">
+        <form onSubmit={handleUpload} className="space-y-8">
           {/* Guest Name */}
-          <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+          <div className="space-y-3">
+            <label className="block text-base font-semibold text-gray-900 dark:text-white">
               Your Name
             </label>
             <Input
@@ -146,12 +146,13 @@ function UploadContent() {
               value={guestName}
               onChange={(e) => setGuestName(e.target.value)}
               disabled={loading}
+              className="h-14 text-base px-4 rounded-xl border-2 border-gray-200 focus:border-orange-500 focus:ring-0"
             />
           </div>
 
           {/* Photo Selection */}
-          <div className="space-y-3">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+          <div className="space-y-4">
+            <label className="block text-base font-semibold text-gray-900 dark:text-white">
               Photo
             </label>
 
@@ -174,12 +175,19 @@ function UploadContent() {
 
             {/* Preview or Upload Buttons */}
             {preview ? (
-              <div className="space-y-4">
+              <div className="space-y-6">
                 <img
                   src={preview}
                   alt="Preview"
-                  className="w-full h-auto max-h-96 object-cover rounded-lg"
+                  className="w-full h-auto max-h-96 object-cover rounded-2xl shadow-lg"
                 />
+                {file && (
+                  <div className="p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
+                    <p className="text-sm text-gray-700 dark:text-gray-300 font-medium">
+                      <span className="font-semibold text-gray-900 dark:text-white">{file.name}</span> • {(file.size / 1024 / 1024).toFixed(2)} MB
+                    </p>
+                  </div>
+                )}
                 <Button
                   type="button"
                   variant="outline"
@@ -187,22 +195,23 @@ function UploadContent() {
                     setPreview(null);
                     setFile(null);
                   }}
+                  className="w-full h-12 text-base font-semibold"
                 >
                   Choose Different Photo
                 </Button>
               </div>
             ) : (
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-4">
                 <button
                   type="button"
                   onClick={() => cameraInputRef.current?.click()}
-                  className="p-6 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg hover:border-orange-500 dark:hover:border-orange-500 transition-colors"
+                  className="p-8 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-2xl hover:border-orange-500 dark:hover:border-orange-500 transition-colors hover:bg-orange-50 dark:hover:bg-gray-800/50"
                 >
                   <FontAwesomeIcon
                     icon={faCamera}
-                    className="w-8 h-8 text-orange-500 mx-auto mb-2"
+                    className="w-10 h-10 text-orange-500 mx-auto mb-3"
                   />
-                  <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <p className="text-base font-semibold text-gray-900 dark:text-white">
                     Take Photo
                   </p>
                 </button>
@@ -210,13 +219,13 @@ function UploadContent() {
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="p-6 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg hover:border-orange-500 dark:hover:border-orange-500 transition-colors"
+                  className="p-8 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-2xl hover:border-orange-500 dark:hover:border-orange-500 transition-colors hover:bg-orange-50 dark:hover:bg-gray-800/50"
                 >
                   <FontAwesomeIcon
                     icon={faImage}
-                    className="w-8 h-8 text-orange-500 mx-auto mb-2"
+                    className="w-10 h-10 text-orange-500 mx-auto mb-3"
                   />
-                  <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <p className="text-base font-semibold text-gray-900 dark:text-white">
                     Choose File
                   </p>
                 </button>
@@ -226,8 +235,8 @@ function UploadContent() {
 
           {/* Error Message */}
           {error && (
-            <div className="p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg text-sm dark:bg-red-900 dark:border-red-700 dark:text-red-100">
-              {error}
+            <div className="p-5 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl">
+              <p className="text-red-700 dark:text-red-300 text-base font-medium">{error}</p>
             </div>
           )}
 
@@ -235,7 +244,7 @@ function UploadContent() {
           <Button
             type="submit"
             disabled={!guestName || !file || loading}
-            className="w-full h-12 text-base font-semibold"
+            className="w-full h-14 text-base font-semibold rounded-xl bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 transition-all duration-300 disabled:opacity-50"
           >
             {loading ? 'Uploading...' : 'Upload Photo'}
           </Button>
