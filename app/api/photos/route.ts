@@ -1,14 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { getPublicS3Url } from '@/lib/s3-helpers';
 
 export async function POST(request: NextRequest) {
   try {
-    const { sessionId, guestName, photoUrl, width, height, fileSize, mimeType } =
+    const { sessionId, guestName, s3Key, width, height, fileSize, mimeType } =
       await request.json();
 
-    if (!sessionId || !guestName || !photoUrl) {
+    if (!sessionId || !guestName || !s3Key) {
       return NextResponse.json(
-        { error: 'Missing required fields' },
+        { error: 'Missing required fields: sessionId, guestName, s3Key' },
         { status: 400 }
       );
     }
@@ -42,13 +43,16 @@ export async function POST(request: NextRequest) {
       });
     }
 
+    // Generate public S3 URL from key
+    const s3Url = getPublicS3Url(s3Key);
+
     // Create photo record
     const photo = await prisma.photo.create({
       data: {
         sessionId,
         guestId: guest.id,
-        s3Url: photoUrl,
-        s3Key: `photos/${sessionId}/${Date.now()}.jpg`,
+        s3Url,
+        s3Key,
         width,
         height,
         fileSize,

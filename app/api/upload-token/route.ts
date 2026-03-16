@@ -1,18 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { generatePresignedUploadUrl } from '@/lib/s3-helpers';
 
 export async function POST(request: NextRequest) {
   try {
-    const { sessionId, guestId } = await request.json();
+    const { sessionId, guestId, fileName, contentType } = await request.json();
 
-    if (!sessionId || !guestId) {
+    if (!sessionId || !guestId || !fileName || !contentType) {
       return NextResponse.json(
-        { error: 'Missing sessionId or guestId' },
+        { error: 'Missing required fields: sessionId, guestId, fileName, contentType' },
         { status: 400 }
       );
     }
 
-    // Verify session exists
+    // Verify session exists and is not expired
     const session = await prisma.weddingSession.findUnique({
       where: { id: sessionId },
     });
@@ -24,21 +25,35 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Generate pre-signed URL token (placeholder for Phase 7)
-    // In Phase 7, this will integrate with AWS S3
-    const token = Math.random().toString(36).substring(2, 15) +
-      Math.random().toString(36).substring(2, 15);
+    if (new Date() > session.expiresAt) {
+      return NextResponse.json(
+        { error: 'Session has expired' },
+        { status: 410 }
+      );
+    }
 
+    // Generate real AWS S3 pre-signed URL
+    const { uploadUrl, s3Key } = await generatePresignedUploadUrl(
+      sessionId,
+      fileName,
+      contentType
+    );
+
+    // Store upload token in database for tracking
     const uploadToken = await prisma.uploadToken.create({
       data: {
         sessionId,
         guestId,
-        token,
-        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
+        token: s3Key, // Use S3 key as token for reference
+        expiresAt: new Date(Date.now() + 15 * 60 * 1000), // 15 minutes
       },
     });
 
-    return NextResponse.json(uploadToken, { status: 201 });
+    return NextResponse.json({
+      ...uploadToken,
+      uploadUrl, // Real S3 pre-signed URL
+      s3Key,
+    }, { status: 201 });
   } catch (error) {
     console.error('Error creating upload token:', error);
     return NextResponse.json(
