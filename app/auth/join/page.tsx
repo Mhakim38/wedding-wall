@@ -1,26 +1,35 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { Suspense, useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowRight, faHome } from '@fortawesome/free-solid-svg-icons';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import Link from 'next/link';
 
-export default function JoinPage() {
+function JoinContent() {
   const [code, setCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const router = useRouter();
+  const searchParams = useSearchParams();
 
-  const handleJoin = async (e: React.FormEvent) => {
-    e.preventDefault();
+  useEffect(() => {
+    // If code is in URL, auto-join
+    const urlCode = searchParams.get('code');
+    if (urlCode) {
+      setCode(urlCode.toUpperCase());
+      handleJoinWithCode(urlCode.toUpperCase());
+    }
+  }, [searchParams]);
+
+  const handleJoinWithCode = async (joinCode: string) => {
     setError('');
     setLoading(true);
 
     try {
-      const response = await fetch(`/api/session?code=${code.toUpperCase()}`);
+      const response = await fetch(`/api/session?code=${joinCode}`);
       
       if (!response.ok) {
         throw new Error('Wedding code not found or expired');
@@ -30,9 +39,13 @@ export default function JoinPage() {
       router.push(`/gallery?sessionId=${session.id}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to join wedding');
-    } finally {
       setLoading(false);
     }
+  };
+
+  const handleJoin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await handleJoinWithCode(code.toUpperCase());
   };
 
   return (
@@ -93,5 +106,13 @@ export default function JoinPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function JoinPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <JoinContent />
+    </Suspense>
   );
 }
