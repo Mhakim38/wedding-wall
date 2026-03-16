@@ -68,15 +68,15 @@ function GalleryContent() {
   return (
     <div className={`min-h-screen ${darkMode ? 'dark bg-gray-900' : 'bg-gradient-to-br from-orange-50 via-white to-pink-50'}`}>
       {/* Header */}
-      <header className="sticky top-0 z-40 backdrop-blur-md border-b border-orange-100 dark:border-gray-800 bg-white/90 dark:bg-gray-900/90 shadow-sm">
-        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-8 py-6">
-          <div className="flex items-center justify-between">
+      <header className="sticky top-0 z-40 pt-4">
+        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-8 pb-2">
+          <div className="flex items-center justify-between rounded-full bg-white/90 dark:bg-black/80 backdrop-blur-xl border-2 border-white dark:border-white/10 shadow-warm-lg px-6 py-3">
             {/* Left: Home Button */}
             <Link href="/">
               <Button 
                 variant="ghost" 
                 size="icon" 
-                className="hover:bg-orange-100 dark:hover:bg-gray-800 transition-colors"
+                className="rounded-full hover:bg-orange-50/50 dark:hover:bg-gray-800 transition-colors"
               >
                 <FontAwesomeIcon icon={faHome} className="w-5 h-5 text-orange-500 dark:text-orange-400" />
               </Button>
@@ -95,7 +95,7 @@ function GalleryContent() {
               variant="ghost"
               size="icon"
               onClick={() => setDarkMode(!darkMode)}
-              className="hover:bg-orange-100 dark:hover:bg-gray-800 transition-colors"
+              className="rounded-full hover:bg-orange-50/50 dark:hover:bg-gray-800 transition-colors"
             >
               <FontAwesomeIcon
                 icon={darkMode ? faSun : faMoon}
@@ -111,7 +111,7 @@ function GalleryContent() {
         {/* Upload Button */}
         <div className="mb-12">
           <Link href={`/gallery/upload?sessionId=${sessionId}`}>
-            <Button className="h-14 text-base font-semibold rounded-xl bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 transition-all duration-300 shadow-md hover:shadow-lg">
+            <Button className="h-14 text-base font-semibold rounded-full px-8 bg-white/70 text-orange-600 border border-white/80 backdrop-blur-md hover:bg-white/90 transition-all duration-300 shadow-lg hover:shadow-xl">
               <FontAwesomeIcon icon={faCamera} className="mr-3 w-5 h-5" />
               Upload Your Photo
             </Button>
@@ -145,7 +145,7 @@ function GalleryContent() {
           <>
             {/* Photo Count Badge */}
             <div className="mb-8 flex items-center justify-between">
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 rounded-full bg-white/65 dark:bg-gray-900/60 backdrop-blur-md border border-white/70 dark:border-gray-700/50 px-4 py-2.5 shadow-md">
                 <div className="w-10 h-10 rounded-full bg-gradient-to-r from-orange-500 to-pink-500 flex items-center justify-center">
                   <FontAwesomeIcon icon={faCamera} className="w-5 h-5 text-white" />
                 </div>
@@ -181,13 +181,13 @@ function GalleryContent() {
                     <p className="text-white font-semibold text-base leading-tight">
                       {photo.guest.name}
                     </p>
-                    <p className="text-orange-200 text-sm font-medium mt-1">
+                    <p className="text-gray-100 text-sm font-medium mt-1">
                       {new Date(photo.uploadedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                     </p>
                   </div>
 
                   {/* Hover Indicator */}
-                  <div className="absolute top-0 left-0 right-0 bottom-0 bg-gradient-to-b from-orange-500/0 to-orange-500/0 group-hover:from-orange-500/5 group-hover:to-pink-500/5 transition-colors duration-300 pointer-events-none" />
+                  <div className="absolute top-0 left-0 right-0 bottom-0 bg-gradient-to-b from-orange-500/0 to-orange-500/0 group-hover:from-orange-500/6 group-hover:to-orange-500/6 transition-colors duration-300 pointer-events-none" />
                 </div>
               ))}
             </div>
