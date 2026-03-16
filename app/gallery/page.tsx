@@ -98,7 +98,7 @@ function GalleryContent() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Upload Button */}
         <div className="mb-8">
-          <Link href={`/upload?sessionId=${sessionId}`}>
+          <Link href={`/gallery/upload?sessionId=${sessionId}`}>
             <Button className="w-full sm:w-auto h-12 text-base font-semibold">
               <FontAwesomeIcon icon={faCamera} className="mr-2 w-5 h-5" />
               Upload Your Photo
