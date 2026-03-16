@@ -11,6 +11,9 @@
   --font-sans: var(--font-poppins);
   --font-serif: var(--font-playfair);
   --font-mono: var(--font-geist-mono);
+
+  /* Enable columns for masonry layout */
+  --columns: 1, 2, 3, 4, 5, 6;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -175,3 +178,9 @@ p {
   outline: 2px solid #F97316;
   outline-offset: 2px;
 }
+
+/* Tailwind Bento Grid Layout */
+.gallery-bento {
+  /* No custom CSS needed here - we will use Tailwind utility classes in the component */
+}
+

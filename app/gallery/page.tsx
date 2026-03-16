@@ -17,6 +17,66 @@ interface Photo {
   uploadedAt: string;
 }
 
+function GalleryItem({ photo, idx }: { photo: Photo; idx: number }) {
+  const [dimensions, setDimensions] = useState<{ width: number; height: number } | null>(
+    photo.width && photo.height ? { width: photo.width, height: photo.height } : null
+  );
+
+  let colSpan = 'col-span-1';
+  let rowSpan = 'row-span-1';
+
+  if (dimensions) {
+    const ratio = dimensions.width / dimensions.height;
+
+    // Landscape: Span 2 cols, 1 row (on larger screens)
+    if (ratio > 1.2) {
+      colSpan = 'md:col-span-2';
+      rowSpan = 'row-span-1';
+    }
+    // Portrait: Span 1 col, 2 rows
+    else if (ratio < 0.8) {
+      colSpan = 'col-span-1';
+      rowSpan = 'row-span-2';
+    }
+    // Square: Span 1 col, 1 row (default)
+  }
+
+  return (
+    <div
+      className={`relative rounded-xl overflow-hidden group shadow-md hover:shadow-xl transition-all duration-300 hover:scale-[1.02] hover:z-10 bg-gray-100 dark:bg-gray-800 ${colSpan} ${rowSpan}`}
+      style={{
+        animation: `fadeInUp 0.6s ease-out ${idx * 0.05}s backwards`,
+      }}
+    >
+      {/* Photo Image */}
+      <img
+        src={`/api/image?key=${encodeURIComponent(photo.s3Key)}`}
+        alt={`Photo by ${photo.guest.name}`}
+        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+        loading="lazy"
+        onLoad={(e) => {
+          if (!dimensions) {
+            const img = e.currentTarget;
+            if (img.naturalWidth && img.naturalHeight) {
+                setDimensions({ width: img.naturalWidth, height: img.naturalHeight });
+            }
+          }
+        }}
+      />
+
+      {/* Overlay with Guest Name */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
+        <p className="text-white font-semibold text-sm transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+          {photo.guest.name}
+        </p>
+        <p className="text-white/80 text-xs mt-0.5 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 delay-75">
+          {new Date(photo.uploadedAt).toLocaleDateString()}
+        </p>
+      </div>
+    </div>
+  );
+}
+
 function GalleryContent() {
   const searchParams = useSearchParams();
   const sessionId = searchParams.get('sessionId');
@@ -156,39 +216,10 @@ function GalleryContent() {
               </div>
             </div>
 
-            {/* Masonry Gallery */}
-            <div
-              className="columns-1 sm:columns-2 lg:columns-3 gap-6 space-y-6"
-              style={{ columnFill: 'auto' }}
-            >
+            {/* Tailwind Bento Grid Gallery */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 auto-rows-[250px] grid-flow-dense">
               {photos.map((photo, idx) => (
-                <div
-                  key={photo.id}
-                  className="break-inside-avoid group relative overflow-hidden rounded-2xl shadow-md hover:shadow-warm-lg transition-all duration-300 dark:shadow-gray-800 hover:scale-105 cursor-pointer"
-                  style={{
-                    animation: `fadeInUp 0.6s ease-out ${idx * 0.1}s backwards`
-                  }}
-                >
-                  {/* Photo Image */}
-                  <img
-                    src={`/api/image?key=${encodeURIComponent(photo.s3Key)}`}
-                    alt={`Photo by ${photo.guest.name}`}
-                    className="w-full h-auto object-cover group-hover:scale-110 transition-transform duration-500"
-                  />
-
-                  {/* Overlay with Guest Name */}
-                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-6 translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
-                    <p className="text-white font-semibold text-base leading-tight">
-                      {photo.guest.name}
-                    </p>
-                    <p className="text-gray-100 text-sm font-medium mt-1">
-                      {new Date(photo.uploadedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                    </p>
-                  </div>
-
-                  {/* Hover Indicator */}
-                  <div className="absolute top-0 left-0 right-0 bottom-0 bg-gradient-to-b from-orange-500/0 to-orange-500/0 group-hover:from-orange-500/6 group-hover:to-orange-500/6 transition-colors duration-300 pointer-events-none" />
-                </div>
+                <GalleryItem key={photo.id} photo={photo} idx={idx} />
               ))}
             </div>
           </>
