@@ -33,11 +33,22 @@ export async function POST(request: NextRequest) {
     }
 
     // Generate real AWS S3 pre-signed URL
-    const { uploadUrl, s3Key } = await generatePresignedUploadUrl(
-      sessionId,
-      fileName,
-      contentType
-    );
+    let uploadUrl, s3Key;
+    try {
+      const result = await generatePresignedUploadUrl(
+        sessionId,
+        fileName,
+        contentType
+      );
+      uploadUrl = result.uploadUrl;
+      s3Key = result.s3Key;
+    } catch (s3Error) {
+      console.error('S3 pre-signed URL generation error:', s3Error);
+      return NextResponse.json(
+        { error: `Failed to generate upload URL: ${s3Error instanceof Error ? s3Error.message : 'Unknown error'}` },
+        { status: 500 }
+      );
+    }
 
     // Store upload token in database for tracking
     const uploadToken = await prisma.uploadToken.create({

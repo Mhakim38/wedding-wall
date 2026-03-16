@@ -36,8 +36,9 @@ export async function generatePresignedUploadUrl(
       s3Key,
     };
   } catch (error) {
-    console.error("Error generating presigned URL:", error);
-    throw new Error("Failed to generate upload URL");
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.error("Error generating presigned URL:", errorMessage);
+    throw new Error(`Failed to generate upload URL: ${errorMessage}`);
   }
 }
 
