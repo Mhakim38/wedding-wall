@@ -34,6 +34,11 @@ export const metadata: Metadata = {
     statusBarStyle: "black-translucent",
     title: "Wedding Wall",
   },
+  icons: {
+    icon: '/icon.png',
+    shortcut: '/favicon.ico',
+    apple: '/apple-icon.png',
+  },
   formatDetection: {
     telephone: false,
   },
@@ -49,8 +54,6 @@ export default function RootLayout({
       <head>
         <meta name="theme-color" content="#F97316" />
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-        <link rel="apple-touch-icon" href="/favicon-192x192.png" />
-        <link rel="icon" type="image/x-icon" href="/favicon.ico" />
       </head>
       <body
         className={`${poppins.variable} ${playfairDisplay.variable} ${geistSans.variable} ${geistMono.variable} antialiased bg-white font-poppins dark:bg-black dark:text-white`}

@@ -132,12 +132,12 @@ function GalleryContent() {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-8 py-12">
-        {/* Upload Button */}
-        <div className="mb-12">
+        {/* FAB Upload Button - Replaces Top Button */}
+        <div className="fixed bottom-6 right-6 z-50">
           <Link href={`/gallery/upload?sessionId=${sessionId}`}>
-            <Button className="h-14 text-base font-semibold rounded-full px-8 bg-white/70 text-orange-600 border border-white/80 backdrop-blur-md hover:bg-white/90 transition-all duration-300 shadow-lg hover:shadow-xl">
-              <FontAwesomeIcon icon={faCamera} className="mr-3 w-5 h-5" />
-              Upload Your Photo
+            <Button className="h-14 w-14 rounded-full p-0 bg-gradient-to-r from-orange-500 to-pink-500 text-white shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 md:w-auto md:px-6">
+              <FontAwesomeIcon icon={faCamera} className="w-5 h-5 md:mr-2" />
+              <span className="hidden md:inline font-semibold">Upload Photo</span>
             </Button>
           </Link>
         </div>

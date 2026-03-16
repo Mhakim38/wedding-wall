@@ -71,8 +71,12 @@ export default function Navbar() {
           <div className="flex items-center justify-between">
             {/* Logo */}
             <Link href="/" className="flex items-center space-x-2 group">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-orange-400 to-pink-500 flex items-center justify-center text-white shadow-md group-hover:scale-110 transition-transform">
-                <FontAwesomeIcon icon={faHeart} className="text-sm" />
+              <div className="relative w-8 h-8 group-hover:scale-110 transition-transform">
+                <img 
+                  src="/logo.png" 
+                  alt="Wedding Wall Logo" 
+                  className="w-full h-full object-contain rounded-full shadow-md"
+                />
               </div>
               <span className="text-gray-900 dark:text-white font-bold text-xl hidden sm:inline" style={{ fontFamily: 'var(--font-playfair)' }}>
                 Wedding Wall
