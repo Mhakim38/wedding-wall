@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Poppins, Playfair_Display } from "next/font/google";
+import Navbar from "@/components/Navbar";
 import "./globals.css";
 
 const poppins = Poppins({
@@ -52,8 +53,9 @@ export default function RootLayout({
         <link rel="icon" type="image/x-icon" href="/favicon.ico" />
       </head>
       <body
-        className={`${poppins.variable} ${playfairDisplay.variable} ${geistSans.variable} ${geistMono.variable} antialiased bg-white font-poppins`}
+        className={`${poppins.variable} ${playfairDisplay.variable} ${geistSans.variable} ${geistMono.variable} antialiased bg-white font-poppins dark:bg-black dark:text-white`}
       >
+        <Navbar />
         {children}
         <script
           dangerouslySetInnerHTML={{

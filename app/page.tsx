@@ -78,7 +78,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-pink-50">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-pink-50 dark:from-gray-900 dark:via-black dark:to-gray-900 transition-colors duration-300">
       {/* Hero Section */}
       <div className="relative overflow-hidden pt-16 pb-32">
         {/* Animated Background Blobs */}
@@ -88,26 +88,20 @@ export default function Home() {
         </div>
 
         <div className="relative z-10">
-          {/* Navigation */}
-          <nav className="flex items-center justify-between px-6 py-6 backdrop-blur-sm max-w-7xl mx-auto">
-            <div className="text-3xl font-bold tracking-tight bg-gradient-to-r from-orange-500 to-pink-500 bg-clip-text text-transparent" style={{ fontFamily: 'var(--font-playfair)' }}>
-              Wedding Wall
-            </div>
-            <div className="text-base text-gray-700 font-medium">Instant Photo Sharing for Weddings</div>
-          </nav>
+          {/* Navigation removed - moved to global layout */}
 
           {/* Hero Content */}
           <div className="max-w-6xl mx-auto px-4 py-20 sm:py-32">
             <div className="text-center space-y-10">
               {/* Main Headline */}
               <div className="space-y-6">
-                <h1 className="hero-title text-6xl sm:text-7xl font-bold text-gray-900 leading-tight tracking-tight" style={{ fontFamily: 'var(--font-playfair)' }}>
+                <h1 className="hero-title text-6xl sm:text-7xl font-bold text-gray-900 dark:text-white leading-tight tracking-tight" style={{ fontFamily: 'var(--font-playfair)' }}>
                   Capture Every
                   <span className="block bg-gradient-to-r from-orange-500 via-pink-500 to-red-500 bg-clip-text text-transparent">
                     Beautiful Moment
                   </span>
                 </h1>
-                <p className="hero-title text-xl md:text-2xl text-gray-700 max-w-2xl mx-auto font-medium leading-relaxed">
+                <p className="hero-title text-xl md:text-2xl text-gray-700 dark:text-gray-300 max-w-2xl mx-auto font-medium leading-relaxed">
                   Instagram-story style photo gallery for weddings. Guests snap, you see instantly. No app required.
                 </p>
               </div>
@@ -137,14 +131,14 @@ export default function Home() {
 
       {/* CTA Section */}
       <div className="relative z-10 max-w-4xl mx-auto px-4 pb-32">
-        <div className="cta-card bg-white rounded-3xl shadow-warm-lg border border-orange-100 overflow-hidden">
+        <div className="cta-card bg-white dark:bg-gray-900/80 rounded-3xl shadow-warm-lg border border-orange-100 dark:border-white/10 overflow-hidden backdrop-blur-sm">
           <Tabs defaultValue="join" className="w-full">
-            <TabsList className="w-full justify-start rounded-none bg-transparent border-b border-gray-200 h-auto p-0">
-              <TabsTrigger value="join" className="flex-1 py-5 px-6 rounded-none font-semibold text-base data-[state=active]:border-b-2 data-[state=active]:border-orange-500 data-[state=active]:bg-transparent hover:bg-orange-50/50 transition-colors">
+            <TabsList className="w-full justify-start rounded-none bg-transparent border-b border-gray-200 dark:border-white/10 h-auto p-0">
+              <TabsTrigger value="join" className="flex-1 py-5 px-6 rounded-none font-semibold text-base data-[state=active]:border-b-2 data-[state=active]:border-orange-500 data-[state=active]:bg-transparent hover:bg-orange-50/50 dark:hover:bg-white/5 transition-colors text-gray-600 dark:text-gray-400 data-[state=active]:text-gray-900 dark:data-[state=active]:text-white">
                 <FontAwesomeIcon icon={faUsers} className="mr-3 w-4 h-4" />
                 Join Wedding
               </TabsTrigger>
-              <TabsTrigger value="create" className="flex-1 py-5 px-6 rounded-none font-semibold text-base data-[state=active]:border-b-2 data-[state=active]:border-orange-500 data-[state=active]:bg-transparent hover:bg-orange-50/50 transition-colors">
+              <TabsTrigger value="create" className="flex-1 py-5 px-6 rounded-none font-semibold text-base data-[state=active]:border-b-2 data-[state=active]:border-orange-500 data-[state=active]:bg-transparent hover:bg-orange-50/50 dark:hover:bg-white/5 transition-colors text-gray-600 dark:text-gray-400 data-[state=active]:text-gray-900 dark:data-[state=active]:text-white">
                 <FontAwesomeIcon icon={faCamera} className="mr-3 w-4 h-4" />
                 Create Gallery
               </TabsTrigger>
@@ -154,8 +148,8 @@ export default function Home() {
             <div className="p-10 sm:p-12">
               <TabsContent value="join" className="space-y-6 mt-0">
                 <div>
-                  <h3 className="text-3xl font-bold text-gray-900 mb-3" style={{ fontFamily: 'var(--font-playfair)' }}>Join a Wedding</h3>
-                  <p className="text-lg text-gray-700 font-medium">
+                  <h3 className="text-3xl font-bold text-gray-900 dark:text-white mb-3" style={{ fontFamily: 'var(--font-playfair)' }}>Join a Wedding</h3>
+                  <p className="text-lg text-gray-700 dark:text-gray-300 font-medium">
                     Got a wedding code? Enter it below to start uploading photos instantly.
                   </p>
                 </div>
@@ -167,29 +161,29 @@ export default function Home() {
                     onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
                     maxLength={8}
                     disabled={loading}
-                    className="h-14 text-base px-4 rounded-xl border-2 border-gray-200 focus:border-orange-500 focus:ring-0"
+                    className="h-14 text-base px-4 rounded-xl border-2 border-gray-200 dark:border-white/10 dark:bg-black/50 dark:text-white focus:border-orange-500 focus:ring-0 placeholder:text-gray-400 dark:placeholder:text-gray-600"
                   />
                   {error && (
-                    <p className="text-base text-red-600 font-medium">{error}</p>
+                    <p className="text-base text-red-600 dark:text-red-400 font-medium">{error}</p>
                   )}
                   <Button 
                     type="submit"
-                    className="w-full h-14 text-base font-semibold rounded-xl bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 transition-all duration-300"
+                    className="w-full h-14 text-base font-semibold rounded-xl bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white transition-all duration-300"
                     disabled={!joinCode || loading}
                   >
                     <FontAwesomeIcon icon={faArrowRight} className="mr-3 w-4 h-4" />
                     {loading ? 'Joining...' : 'Enter Gallery'}
                   </Button>
                 </form>
-                <p className="text-sm text-gray-600 text-center font-medium">
+                <p className="text-sm text-gray-600 dark:text-gray-400 text-center font-medium">
                   No registration needed • Works offline • Save to home screen
                 </p>
               </TabsContent>
 
               <TabsContent value="create" className="space-y-6 mt-0">
                 <div>
-                  <h3 className="text-3xl font-bold text-gray-900 mb-3" style={{ fontFamily: 'var(--font-playfair)' }}>Create New Gallery</h3>
-                  <p className="text-lg text-gray-700 font-medium">
+                  <h3 className="text-3xl font-bold text-gray-900 dark:text-white mb-3" style={{ fontFamily: 'var(--font-playfair)' }}>Create New Gallery</h3>
+                  <p className="text-lg text-gray-700 dark:text-gray-300 font-medium">
                     Set up a wedding gallery and get a unique code to share with guests.
                   </p>
                 </div>
@@ -200,28 +194,28 @@ export default function Home() {
                     value={coupleName}
                     onChange={(e) => setCoupleName(e.target.value)}
                     disabled={loading}
-                    className="h-14 text-base px-4 rounded-xl border-2 border-gray-200 focus:border-orange-500 focus:ring-0"
+                    className="h-14 text-base px-4 rounded-xl border-2 border-gray-200 dark:border-white/10 dark:bg-black/50 dark:text-white focus:border-orange-500 focus:ring-0 placeholder:text-gray-400 dark:placeholder:text-gray-600"
                   />
                   <Input
                     type="date"
                     value={eventDate}
                     onChange={(e) => setEventDate(e.target.value)}
                     disabled={loading}
-                    className="h-14 text-base px-4 rounded-xl border-2 border-gray-200 focus:border-orange-500 focus:ring-0"
+                    className="h-14 text-base px-4 rounded-xl border-2 border-gray-200 dark:border-white/10 dark:bg-black/50 dark:text-white focus:border-orange-500 focus:ring-0"
                   />
                   {error && (
-                    <p className="text-base text-red-600 font-medium">{error}</p>
+                    <p className="text-base text-red-600 dark:text-red-400 font-medium">{error}</p>
                   )}
                   <Button 
                     type="submit"
-                    className="w-full h-14 text-base font-semibold rounded-xl bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 transition-all duration-300"
+                    className="w-full h-14 text-base font-semibold rounded-xl bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white transition-all duration-300"
                     disabled={!coupleName || !eventDate || loading}
                   >
                     <FontAwesomeIcon icon={faCamera} className="mr-3 w-4 h-4" />
                     {loading ? 'Creating...' : 'Create Gallery'}
                   </Button>
                 </form>
-                <p className="text-sm text-gray-600 text-center font-medium">
+                <p className="text-sm text-gray-600 dark:text-gray-400 text-center font-medium">
                   Your gallery code will be generated instantly
                 </p>
               </TabsContent>
@@ -233,8 +227,8 @@ export default function Home() {
       {/* Features Section */}
       <div className="relative z-10 max-w-6xl mx-auto px-4 py-32">
         <div className="text-center mb-16">
-          <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4" style={{ fontFamily: 'var(--font-playfair)' }}>Why Wedding Wall?</h2>
-          <p className="text-lg text-gray-700 font-medium max-w-2xl mx-auto">Everything you need to capture and celebrate your special day</p>
+          <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-4" style={{ fontFamily: 'var(--font-playfair)' }}>Why Wedding Wall?</h2>
+          <p className="text-lg text-gray-700 dark:text-gray-300 font-medium max-w-2xl mx-auto">Everything you need to capture and celebrate your special day</p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {[
@@ -271,13 +265,13 @@ export default function Home() {
           ].map((feature, idx) => (
             <div
               key={idx}
-              className="feature-card p-8 rounded-2xl bg-white border border-gray-200 hover:border-orange-300 hover:shadow-warm-lg transition-all duration-300 hover:scale-105"
+              className="feature-card p-8 rounded-2xl bg-white dark:bg-gray-900/50 border border-gray-200 dark:border-white/10 hover:border-orange-300 dark:hover:border-orange-500/50 hover:shadow-warm-lg transition-all duration-300 hover:scale-105"
             >
               <div className="text-5xl mb-6 text-orange-500">
                 <FontAwesomeIcon icon={feature.icon} />
               </div>
-              <h3 className="font-bold text-xl text-gray-900 mb-3" style={{ fontFamily: 'var(--font-playfair)' }}>{feature.title}</h3>
-              <p className="text-gray-700 text-base font-medium leading-relaxed">{feature.description}</p>
+              <h3 className="font-bold text-xl text-gray-900 dark:text-white mb-3" style={{ fontFamily: 'var(--font-playfair)' }}>{feature.title}</h3>
+              <p className="text-gray-700 dark:text-gray-300 text-base font-medium leading-relaxed">{feature.description}</p>
             </div>
           ))}
         </div>

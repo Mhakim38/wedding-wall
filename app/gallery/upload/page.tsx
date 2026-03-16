@@ -116,24 +116,16 @@ function UploadContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-pink-50 dark:from-gray-900 dark:to-gray-800">
-      {/* Header */}
-      <header className="sticky top-0 z-40 backdrop-blur-sm border-b border-gray-200 dark:border-gray-800 bg-white/80 dark:bg-gray-900/80">
-        <div className="max-w-2xl mx-auto px-6 py-6 flex items-center justify-between">
-          <Link href={`/gallery?sessionId=${sessionId}`}>
-            <Button variant="ghost" size="icon" className="hover:bg-orange-50 dark:hover:bg-gray-800">
-              <FontAwesomeIcon icon={faArrowLeft} className="w-5 h-5 text-gray-700 dark:text-white" />
-            </Button>
-          </Link>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white tracking-tight" style={{ fontFamily: 'var(--font-playfair)' }}>
-            Upload Photo
-          </h1>
-          <div className="w-10" />
-        </div>
-      </header>
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-pink-50 dark:from-gray-900 dark:via-black dark:to-gray-900">
+      {/* Header removed - using global Navbar */}
+      <div className="pt-20"> {/* Add padding for fixed navbar */}
+      </div>
 
       {/* Main Content */}
       <main className="max-w-2xl mx-auto px-6 py-12">
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white tracking-tight mb-8 text-center" style={{ fontFamily: 'var(--font-playfair)' }}>
+            Upload Photo
+        </h1>
         <form onSubmit={handleUpload} className="space-y-8">
           {/* Guest Name */}
           <div className="space-y-3">
@@ -146,7 +138,7 @@ function UploadContent() {
               value={guestName}
               onChange={(e) => setGuestName(e.target.value)}
               disabled={loading}
-              className="h-14 text-base px-4 rounded-xl border-2 border-gray-200 focus:border-orange-500 focus:ring-0"
+              className="h-14 text-base px-4 rounded-xl border-2 border-gray-200 dark:border-gray-700 dark:bg-black/50 dark:text-white focus:border-orange-500 focus:ring-0 placeholder:text-gray-400 dark:placeholder:text-gray-600"
             />
           </div>
 

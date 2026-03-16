@@ -83,7 +83,6 @@ function GalleryContent() {
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [darkMode, setDarkMode] = useState(false);
 
   useEffect(() => {
     if (!sessionId) return;
@@ -126,45 +125,10 @@ function GalleryContent() {
   }
 
   return (
-    <div className={`min-h-screen ${darkMode ? 'dark bg-gray-900' : 'bg-gradient-to-br from-orange-50 via-white to-pink-50'}`}>
-      {/* Header */}
-      <header className="sticky top-0 z-40 pt-4">
-        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-8 pb-2">
-          <div className="flex items-center justify-between rounded-full bg-white/90 dark:bg-black/80 backdrop-blur-xl border-2 border-white dark:border-white/10 shadow-warm-lg px-6 py-3">
-            {/* Left: Home Button */}
-            <Link href="/">
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="rounded-full hover:bg-orange-50/50 dark:hover:bg-gray-800 transition-colors"
-              >
-                <FontAwesomeIcon icon={faHome} className="w-5 h-5 text-orange-500 dark:text-orange-400" />
-              </Button>
-            </Link>
-
-            {/* Center: Wedding Gallery Title with Subtitle */}
-            <div className="flex flex-col items-center">
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-orange-500 via-pink-500 to-orange-500 bg-clip-text text-transparent tracking-tight" style={{ fontFamily: 'var(--font-playfair)' }}>
-                Wedding Gallery
-              </h1>
-              <p className="text-sm text-orange-600 dark:text-orange-400 font-medium mt-1">Celebrate every beautiful moment</p>
-            </div>
-
-            {/* Right: Dark Mode Toggle */}
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setDarkMode(!darkMode)}
-              className="rounded-full hover:bg-orange-50/50 dark:hover:bg-gray-800 transition-colors"
-            >
-              <FontAwesomeIcon
-                icon={darkMode ? faSun : faMoon}
-                className="w-5 h-5 text-orange-500 dark:text-orange-400"
-              />
-            </Button>
-          </div>
-        </div>
-      </header>
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-pink-50 dark:from-gray-900 dark:via-black dark:to-gray-900">
+      {/* Header removed - using global Navbar */}
+      <div className="pt-20"> {/* Add padding for fixed navbar */}
+      </div>
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-8 py-12">
