@@ -13,15 +13,12 @@ import {
   faArrowRight,
   faHeart
 } from '@fortawesome/free-solid-svg-icons';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
 export default function Home() {
   const router = useRouter();
   const [joinCode, setJoinCode] = useState('');
-  const [coupleName, setCoupleName] = useState('');
-  const [eventDate, setEventDate] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -34,44 +31,6 @@ export default function Home() {
       router.push(`/auth/join?code=${joinCode.toUpperCase()}`);
     } catch (err) {
       setError('Failed to join');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleCreateGallery = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!coupleName || !eventDate) {
-      setError('Please fill in all fields');
-      return;
-    }
-
-    setError('');
-    setLoading(true);
-
-    try {
-      // Convert date string to ISO timestamp (date input gives YYYY-MM-DD, need full ISO)
-      const eventDateTime = new Date(eventDate).toISOString();
-
-      const response = await fetch('/api/session', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          eventName: coupleName,
-          eventDate: eventDateTime,
-        }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to create gallery');
-      }
-
-      const session = await response.json();
-      router.push(`/gallery?sessionId=${session.id}`);
-    } catch (err) {
-      console.error('Error creating gallery:', err);
-      setError(err instanceof Error ? err.message : 'Failed to create gallery');
     } finally {
       setLoading(false);
     }
@@ -132,95 +91,39 @@ export default function Home() {
       {/* CTA Section */}
       <div id="join" className="relative z-10 max-w-4xl mx-auto px-4 pb-32">
         <div className="cta-card bg-white dark:bg-gray-900/80 rounded-3xl shadow-warm-lg border border-orange-100 dark:border-white/10 overflow-hidden backdrop-blur-sm">
-          <Tabs defaultValue="join" className="w-full">
-            <TabsList className="w-full justify-start rounded-none bg-transparent border-b border-gray-200 dark:border-white/10 h-auto p-0">
-              <TabsTrigger value="join" className="flex-1 py-5 px-6 rounded-none font-semibold text-base data-[state=active]:border-b-2 data-[state=active]:border-orange-500 data-[state=active]:bg-transparent hover:bg-orange-50/50 dark:hover:bg-white/5 transition-colors text-gray-600 dark:text-gray-400 data-[state=active]:text-gray-900 dark:data-[state=active]:text-white">
-                <FontAwesomeIcon icon={faUsers} className="mr-3 w-4 h-4" />
-                Join Wedding
-              </TabsTrigger>
-              <TabsTrigger value="create" className="flex-1 py-5 px-6 rounded-none font-semibold text-base data-[state=active]:border-b-2 data-[state=active]:border-orange-500 data-[state=active]:bg-transparent hover:bg-orange-50/50 dark:hover:bg-white/5 transition-colors text-gray-600 dark:text-gray-400 data-[state=active]:text-gray-900 dark:data-[state=active]:text-white">
-                <FontAwesomeIcon icon={faCamera} className="mr-3 w-4 h-4" />
-                Create Gallery
-              </TabsTrigger>
-            </TabsList>
-
-            {/* Tab Content */}
-            <div className="p-10 sm:p-12">
-              <TabsContent value="join" className="space-y-6 mt-0">
-                <div>
-                  <h3 className="text-3xl font-bold text-gray-900 dark:text-white mb-3" style={{ fontFamily: 'var(--font-playfair)' }}>Join a Wedding</h3>
-                  <p className="text-lg text-gray-700 dark:text-gray-300 font-medium">
-                    Got a wedding code? Enter it below to start uploading photos instantly.
-                  </p>
-                </div>
-                <form onSubmit={handleJoin} className="space-y-5">
-                  <Input
-                    type="text"
-                    placeholder="Enter wedding code (e.g., ABC12345)"
-                    value={joinCode}
-                    onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
-                    maxLength={8}
-                    disabled={loading}
-                    className="h-14 text-base px-4 rounded-xl border-2 border-gray-200 dark:border-white/10 text-gray-900 dark:text-white bg-white dark:bg-black/50 focus:border-orange-500 focus:ring-0 placeholder:text-gray-400 dark:placeholder:text-gray-500"
-                  />
-                  {error && (
-                    <p className="text-base text-red-600 dark:text-red-400 font-medium">{error}</p>
-                  )}
-                  <Button 
-                    type="submit"
-                    className="w-full h-14 text-base font-semibold rounded-xl bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white transition-all duration-300"
-                    disabled={!joinCode || loading}
-                  >
-                    <FontAwesomeIcon icon={faArrowRight} className="mr-3 w-4 h-4" />
-                    {loading ? 'Joining...' : 'Enter Gallery'}
-                  </Button>
-                </form>
-                <p className="text-sm text-gray-600 dark:text-gray-400 text-center font-medium">
-                  No registration needed • Works offline • Save to home screen
-                </p>
-              </TabsContent>
-
-              <TabsContent value="create" className="space-y-6 mt-0">
-                <div>
-                  <h3 className="text-3xl font-bold text-gray-900 dark:text-white mb-3" style={{ fontFamily: 'var(--font-playfair)' }}>Create New Gallery</h3>
-                  <p className="text-lg text-gray-700 dark:text-gray-300 font-medium">
-                    Set up a wedding gallery and get a unique code to share with guests.
-                  </p>
-                </div>
-                <form onSubmit={handleCreateGallery} className="space-y-5">
-                  <Input
-                    type="text"
-                    placeholder="Couple's names (e.g., John & Sarah)"
-                    value={coupleName}
-                    onChange={(e) => setCoupleName(e.target.value)}
-                    disabled={loading}
-                    className="h-14 text-base px-4 rounded-xl border-2 border-gray-200 dark:border-white/10 text-gray-900 dark:text-white bg-white dark:bg-black/50 focus:border-orange-500 focus:ring-0 placeholder:text-gray-400 dark:placeholder:text-gray-500"
-                  />
-                  <Input
-                    type="date"
-                    value={eventDate}
-                    onChange={(e) => setEventDate(e.target.value)}
-                    disabled={loading}
-                    className="h-14 text-base px-4 rounded-xl border-2 border-gray-200 dark:border-white/10 text-gray-900 dark:text-white bg-white dark:bg-black/50 focus:border-orange-500 focus:ring-0"
-                  />
-                  {error && (
-                    <p className="text-base text-red-600 dark:text-red-400 font-medium">{error}</p>
-                  )}
-                  <Button 
-                    type="submit"
-                    className="w-full h-14 text-base font-semibold rounded-xl bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white transition-all duration-300"
-                    disabled={!coupleName || !eventDate || loading}
-                  >
-                    <FontAwesomeIcon icon={faCamera} className="mr-3 w-4 h-4" />
-                    {loading ? 'Creating...' : 'Create Gallery'}
-                  </Button>
-                </form>
-                <p className="text-sm text-gray-600 dark:text-gray-400 text-center font-medium">
-                  Your gallery code will be generated instantly
-                </p>
-              </TabsContent>
+          <div className="p-10 sm:p-12">
+            <div>
+              <h3 className="text-3xl font-bold text-gray-900 dark:text-white mb-3" style={{ fontFamily: 'var(--font-playfair)' }}>Join a Wedding</h3>
+              <p className="text-lg text-gray-700 dark:text-gray-300 font-medium">
+                Got a wedding code? Enter it below to start uploading photos instantly.
+              </p>
             </div>
-          </Tabs>
+            <form onSubmit={handleJoin} className="space-y-5 mt-8">
+              <Input
+                type="text"
+                placeholder="Enter wedding code (e.g., ABC12345)"
+                value={joinCode}
+                onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
+                maxLength={8}
+                disabled={loading}
+                className="h-14 text-base px-4 rounded-xl border-2 border-gray-200 dark:border-white/10 text-gray-900 dark:text-white bg-white dark:bg-black/50 focus:border-orange-500 focus:ring-0 placeholder:text-gray-400 dark:placeholder:text-gray-500"
+              />
+              {error && (
+                <p className="text-base text-red-600 dark:text-red-400 font-medium">{error}</p>
+              )}
+              <Button 
+                type="submit"
+                className="w-full h-14 text-base font-semibold rounded-xl bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white transition-all duration-300"
+                disabled={!joinCode || loading}
+              >
+                <FontAwesomeIcon icon={faArrowRight} className="mr-3 w-4 h-4" />
+                {loading ? 'Joining...' : 'Enter Gallery'}
+              </Button>
+            </form>
+            <p className="text-sm text-gray-600 dark:text-gray-400 text-center font-medium mt-6">
+              No registration needed • Works offline • Save to home screen
+            </p>
+          </div>
         </div>
       </div>
 

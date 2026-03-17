@@ -1,0 +1,154 @@
+'use client';
+
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCamera, faHeart, faLock } from '@fortawesome/free-solid-svg-icons';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+
+export default function AdminPage() {
+  const router = useRouter();
+  const [coupleName, setCoupleName] = useState('');
+  const [eventDate, setEventDate] = useState('');
+  const [adminPassword, setAdminPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleCreateGallery = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!coupleName || !eventDate || !adminPassword) {
+      setError('Please fill in all fields');
+      return;
+    }
+
+    setError('');
+    setLoading(true);
+
+    try {
+      const eventDateTime = new Date(eventDate).toISOString();
+
+      const response = await fetch('/api/session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          eventName: coupleName,
+          eventDate: eventDateTime,
+          adminPassword: adminPassword,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to create gallery');
+      }
+
+      const session = await response.json();
+      router.push(`/gallery?sessionId=${session.id}`);
+    } catch (err) {
+      console.error('Error creating gallery:', err);
+      setError(err instanceof Error ? err.message : 'Failed to create gallery');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-pink-50 dark:from-gray-900 dark:via-black dark:to-gray-900 transition-colors duration-300 flex flex-col justify-between">
+      <div className="relative overflow-hidden pt-16 flex-grow flex items-center justify-center">
+        {/* Animated Background Blobs */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="float-animation absolute -top-40 -right-40 w-80 h-80 bg-orange-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
+          <div className="float-animation absolute -bottom-40 -left-40 w-80 h-80 bg-pink-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20" style={{ animationDelay: '-1.5s' }}></div>
+        </div>
+
+        <div className="relative z-10 w-full max-w-4xl px-4">
+          <div className="max-w-md mx-auto">
+            <div className="cta-card bg-white dark:bg-gray-900/80 rounded-3xl shadow-warm-lg border border-orange-100 dark:border-white/10 overflow-hidden backdrop-blur-sm">
+              <div className="p-10 sm:p-12">
+                <div>
+                  <h3 className="text-3xl font-bold text-gray-900 dark:text-white mb-3" style={{ fontFamily: 'var(--font-playfair)' }}>Create Gallery</h3>
+                  <p className="text-lg text-gray-700 dark:text-gray-300 font-medium">
+                    Admin Dashboard • Secret Coffee ☕
+                  </p>
+                </div>
+
+                <form onSubmit={handleCreateGallery} className="space-y-6 mt-8">
+                  {/* Error Message - On top of Couple Names */}
+                  {error && (
+                    <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 px-4 py-3 rounded-xl text-sm font-medium animate-in fade-in slide-in-from-top-2">
+                      <FontAwesomeIcon icon={faLock} className="mr-2" />
+                      {error}
+                    </div>
+                  )}
+
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 ml-1">
+                        Couple Names
+                      </label>
+                      <Input
+                        type="text"
+                        placeholder="John Doe"
+                        value={coupleName}
+                        onChange={(e) => setCoupleName(e.target.value)}
+                        disabled={loading}
+                        className="h-14 text-base px-4 rounded-xl border-2 border-gray-200 dark:border-white/10 text-gray-900 dark:text-white bg-white dark:bg-black/50 focus:border-orange-500 focus:ring-0 placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 ml-1">
+                        Event Date
+                      </label>
+                      <Input
+                        type="date"
+                        value={eventDate}
+                        onChange={(e) => setEventDate(e.target.value)}
+                        disabled={loading}
+                        className="h-14 text-base px-4 rounded-xl border-2 border-gray-200 dark:border-white/10 text-gray-900 dark:text-white bg-white dark:bg-black/50 focus:border-orange-500 focus:ring-0"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 ml-1">
+                        Admin Password
+                      </label>
+                      <div className="relative">
+                        <Input
+                          type="password"
+                          placeholder="Enter password"
+                          value={adminPassword}
+                          onChange={(e) => setAdminPassword(e.target.value)}
+                          disabled={loading}
+                          className="h-14 text-base px-4 rounded-xl border-2 border-gray-200 dark:border-white/10 text-gray-900 dark:text-white bg-white dark:bg-black/50 focus:border-orange-500 focus:ring-0 placeholder:text-gray-400 dark:placeholder:text-gray-500 pr-10"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <Button 
+                    type="submit"
+                    className="w-full h-14 text-base font-semibold rounded-xl bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white transition-all duration-300"
+                    disabled={loading}
+                  >
+                    <FontAwesomeIcon icon={faCamera} className="mr-3 w-4 h-4" />
+                    {loading ? 'Creating...' : 'Create Gallery'}
+                  </Button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      {/* Footer */}
+      <div className="border-t border-gray-200 dark:border-white/10 py-8 text-center text-gray-600 dark:text-gray-400 text-sm">
+        <p className="flex items-center justify-center gap-2">
+          <FontAwesomeIcon icon={faHeart} className="w-4 h-4 text-red-500" />
+          Admin Area • Keep it Secret
+        </p>
+      </div>
+    </div>
+  );
+}

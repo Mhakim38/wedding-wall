@@ -3,7 +3,23 @@ import { prisma } from '@/lib/prisma';
 
 export async function POST(request: NextRequest) {
   try {
-    const { eventName, eventDate } = await request.json();
+    const { eventName, eventDate, adminPassword } = await request.json();
+
+    // Security Check: Verify Admin Password
+    if (!process.env.ADMIN_PASSWORD) {
+      console.error('ADMIN_PASSWORD environment variable is not set');
+      return NextResponse.json(
+        { error: 'Server configuration error' },
+        { status: 500 }
+      );
+    }
+
+    if (adminPassword !== process.env.ADMIN_PASSWORD) {
+      return NextResponse.json(
+        { error: 'Unauthorized: Invalid admin password' },
+        { status: 401 }
+      );
+    }
 
     if (!eventName || !eventDate) {
       return NextResponse.json(
