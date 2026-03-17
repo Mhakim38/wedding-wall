@@ -65,11 +65,11 @@ function GalleryItem({ photo, idx }: { photo: Photo; idx: number }) {
       />
 
       {/* Overlay with Guest Name */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
-        <p className="text-white font-semibold text-sm transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent md:from-black/60 md:via-transparent md:to-transparent opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
+        <p className="text-white font-semibold text-sm transform translate-y-0 md:translate-y-4 md:group-hover:translate-y-0 transition-transform duration-300">
           {photo.guest.name}
         </p>
-        <p className="text-white/80 text-xs mt-0.5 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 delay-75">
+        <p className="text-white/80 text-xs mt-0.5 transform translate-y-0 md:translate-y-4 md:group-hover:translate-y-0 transition-transform duration-300 delay-75">
           {new Date(photo.uploadedAt).toLocaleDateString()}
         </p>
       </div>

@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Poppins, Playfair_Display } from "next/font/google";
 import Navbar from "@/components/Navbar";
 import "./globals.css";
@@ -24,6 +24,14 @@ const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
 });
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1.0,
+  maximumScale: 1.0,
+  userScalable: false,
+  viewportFit: "cover",
+};
 
 export const metadata: Metadata = {
   title: "Wedding Wall",
@@ -53,7 +61,6 @@ export default function RootLayout({
     <html lang="en">
       <head>
         <meta name="theme-color" content="#F97316" />
-        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
       </head>
       <body
         className={`${poppins.variable} ${playfairDisplay.variable} ${geistSans.variable} ${geistMono.variable} antialiased bg-white font-poppins dark:bg-black dark:text-white`}
