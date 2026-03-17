@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
+import { usePathname, useSearchParams } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
   faHome, 
@@ -16,10 +17,28 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 
 export default function Navbar() {
+  return (
+    <Suspense fallback={null}>
+      <NavbarContent />
+    </Suspense>
+  );
+}
+
+function NavbarContent() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const sessionId = searchParams.get('sessionId');
+  
+  const isHomePage = pathname === '/';
+  const isGalleryPage = pathname?.startsWith('/gallery');
+
+  // Determine Home link destination
+  // If in gallery (wall) or upload page, Home should go to Wall (Gallery view)
+  const homeHref = (isGalleryPage && sessionId) ? `/gallery?sessionId=${sessionId}` : '/';
 
   // Handle scroll effect and initial theme check
   useEffect(() => {
@@ -28,15 +47,6 @@ export default function Navbar() {
       setScrolled(window.scrollY > 20);
     };
     
-    // Check system preference or localStorage
-    // Default to light mode as requested
-    /* 
-    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      setIsDarkMode(true);
-      document.documentElement.classList.add('dark');
-    }
-    */
-
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
@@ -52,11 +62,12 @@ export default function Navbar() {
     }
   };
 
-  const navItems = [
+  const navItems = isHomePage ? [
     { name: 'Home', icon: faHome, href: '/' },
-    { name: 'Features', icon: faCamera, href: '#features' }, // We'll add ID to features section
-    { name: 'Join', icon: faUsers, href: '#join' },         // We'll add ID to join section
-    { name: 'Create', icon: faHeart, href: '#create' },     // We'll add ID to create section
+    { name: 'Features', icon: faCamera, href: '#features' },
+    { name: 'Join', icon: faUsers, href: '#join' },
+  ] : [
+    { name: 'Home', icon: faHome, href: homeHref },
   ];
 
   if (!mounted) {
@@ -70,7 +81,7 @@ export default function Navbar() {
         <div className={`backdrop-blur-xl border border-white/40 dark:border-white/10 rounded-3xl px-6 py-3 shadow-warm-lg transition-all duration-300 ${scrolled ? 'bg-white/90 dark:bg-black/80 shadow-xl' : 'bg-white/60 dark:bg-black/40'}`}>
           <div className="flex items-center justify-between">
             {/* Logo */}
-            <Link href="/" className="flex items-center space-x-2 group">
+            <Link href={homeHref} className="flex items-center space-x-2 group">
               <div className="relative w-8 h-8 group-hover:scale-110 transition-transform">
                 <img 
                   src="/logo.png" 
@@ -126,29 +137,33 @@ export default function Navbar() {
             </div>
           </div>
 
-          {/* Mobile Navigation (dropdown) */}
-          {mobileMenuOpen && (
-            <div className="md:hidden mt-4 border-t border-gray-100 dark:border-white/10 pt-2" style={{ animation: 'fadeInUp 0.3s ease-out' }}>
-              <div className="space-y-1">
-                {navItems.map((item, index) => (
-                  <Link
-                    key={item.name}
-                    href={item.href}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="block px-4 py-3 rounded-xl text-gray-600 dark:text-gray-300 hover:bg-orange-50 dark:hover:bg-white/10 hover:text-orange-600 dark:hover:text-white transition-all duration-300"
-                    style={{ animation: 'fadeInUp 0.4s ease-out backwards', animationDelay: `${index * 50}ms` }}
-                  >
-                    <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 rounded-full bg-orange-100 dark:bg-white/10 flex items-center justify-center text-orange-500 dark:text-white">
-                        <FontAwesomeIcon icon={item.icon} className="text-sm" />
-                      </div>
-                      <span className="font-medium">{item.name}</span>
+          {/* Mobile Navigation (dropdown) with smooth height transition */}
+          <div 
+            className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out ${
+              mobileMenuOpen 
+                ? 'max-h-96 opacity-100 mt-4 border-t border-gray-100 dark:border-white/10 pt-2' 
+                : 'max-h-0 opacity-0 mt-0 pt-0 border-transparent'
+            }`}
+          >
+            <div className="space-y-1">
+              {navItems.map((item, index) => (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="block px-4 py-3 rounded-xl text-gray-600 dark:text-gray-300 hover:bg-orange-50 dark:hover:bg-white/10 hover:text-orange-600 dark:hover:text-white transition-all duration-300"
+                  // Remove inline animation to let CSS transition handle it, or keep it for items only
+                >
+                  <div className="flex items-center space-x-3">
+                    <div className="w-8 h-8 rounded-full bg-orange-100 dark:bg-white/10 flex items-center justify-center text-orange-500 dark:text-white">
+                      <FontAwesomeIcon icon={item.icon} className="text-sm" />
                     </div>
-                  </Link>
-                ))}
-              </div>
+                    <span className="font-medium">{item.name}</span>
+                  </div>
+                </Link>
+              ))}
             </div>
-          )}
+          </div>
         </div>
       </div>
     </nav>
