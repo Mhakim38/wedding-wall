@@ -36,23 +36,38 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   try {
-    const code = request.nextUrl.searchParams.get('code');
+    const { searchParams } = new URL(request.url);
+    const code = searchParams.get('code');
+    const sessionId = searchParams.get('sessionId');
 
-    if (!code) {
+    if (!code && !sessionId) {
       return NextResponse.json(
-        { error: 'Missing code parameter' },
+        { error: 'Missing code or sessionId parameter' },
         { status: 400 }
       );
     }
 
-    const session = await prisma.weddingSession.findUnique({
-      where: { code },
-      include: {
-        photos: {
-          orderBy: { uploadedAt: 'desc' },
+    let session;
+
+    if (code) {
+      session = await prisma.weddingSession.findUnique({
+        where: { code },
+        include: {
+          photos: {
+            orderBy: { uploadedAt: 'desc' },
+          },
         },
-      },
-    });
+      });
+    } else if (sessionId) {
+      session = await prisma.weddingSession.findUnique({
+        where: { id: sessionId },
+        include: {
+          photos: {
+            orderBy: { uploadedAt: 'desc' },
+          },
+        },
+      });
+    }
 
     if (!session) {
       return NextResponse.json(

@@ -101,7 +101,7 @@ export default function Home() {
                     Beautiful Moment
                   </span>
                 </h1>
-                <p className="hero-title text-xl md:text-2xl text-gray-700 dark:text-gray-300 max-w-2xl mx-auto font-medium leading-relaxed">
+                <p className="hero-title text-xl md:text-2xl text-gray-700 dark:text-gray-200 max-w-2xl mx-auto font-medium leading-relaxed">
                   Instagram-story style photo gallery for weddings. Guests snap, you see instantly. No app required.
                 </p>
               </div>
@@ -117,7 +117,7 @@ export default function Home() {
                 ].map((feature, idx) => (
                   <span
                     key={idx}
-                    className="feature-pill px-6 py-3 rounded-full bg-white/70 backdrop-blur border border-orange-200 text-gray-800 text-sm font-semibold shadow-md hover:shadow-warm-lg transition-all duration-300 flex items-center gap-2.5 hover:border-orange-300"
+                    className="feature-pill px-6 py-3 rounded-full bg-white/70 dark:bg-gray-800/70 backdrop-blur border border-orange-200 dark:border-white/10 text-gray-800 dark:text-gray-200 text-sm font-semibold shadow-md hover:shadow-warm-lg transition-all duration-300 flex items-center gap-2.5 hover:border-orange-300 dark:hover:border-orange-500/50"
                   >
                     <FontAwesomeIcon icon={feature.icon} className="w-4 h-4 text-orange-500" />
                     {feature.text}
@@ -130,7 +130,7 @@ export default function Home() {
       </div>
 
       {/* CTA Section */}
-      <div className="relative z-10 max-w-4xl mx-auto px-4 pb-32">
+      <div id="join" className="relative z-10 max-w-4xl mx-auto px-4 pb-32">
         <div className="cta-card bg-white dark:bg-gray-900/80 rounded-3xl shadow-warm-lg border border-orange-100 dark:border-white/10 overflow-hidden backdrop-blur-sm">
           <Tabs defaultValue="join" className="w-full">
             <TabsList className="w-full justify-start rounded-none bg-transparent border-b border-gray-200 dark:border-white/10 h-auto p-0">
@@ -161,7 +161,7 @@ export default function Home() {
                     onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
                     maxLength={8}
                     disabled={loading}
-                    className="h-14 text-base px-4 rounded-xl border-2 border-gray-200 dark:border-white/10 dark:bg-black/50 dark:text-white focus:border-orange-500 focus:ring-0 placeholder:text-gray-400 dark:placeholder:text-gray-600"
+                    className="h-14 text-base px-4 rounded-xl border-2 border-gray-200 dark:border-white/10 text-gray-900 dark:text-white bg-white dark:bg-black/50 focus:border-orange-500 focus:ring-0 placeholder:text-gray-400 dark:placeholder:text-gray-500"
                   />
                   {error && (
                     <p className="text-base text-red-600 dark:text-red-400 font-medium">{error}</p>
@@ -194,14 +194,14 @@ export default function Home() {
                     value={coupleName}
                     onChange={(e) => setCoupleName(e.target.value)}
                     disabled={loading}
-                    className="h-14 text-base px-4 rounded-xl border-2 border-gray-200 dark:border-white/10 dark:bg-black/50 dark:text-white focus:border-orange-500 focus:ring-0 placeholder:text-gray-400 dark:placeholder:text-gray-600"
+                    className="h-14 text-base px-4 rounded-xl border-2 border-gray-200 dark:border-white/10 text-gray-900 dark:text-white bg-white dark:bg-black/50 focus:border-orange-500 focus:ring-0 placeholder:text-gray-400 dark:placeholder:text-gray-500"
                   />
                   <Input
                     type="date"
                     value={eventDate}
                     onChange={(e) => setEventDate(e.target.value)}
                     disabled={loading}
-                    className="h-14 text-base px-4 rounded-xl border-2 border-gray-200 dark:border-white/10 dark:bg-black/50 dark:text-white focus:border-orange-500 focus:ring-0"
+                    className="h-14 text-base px-4 rounded-xl border-2 border-gray-200 dark:border-white/10 text-gray-900 dark:text-white bg-white dark:bg-black/50 focus:border-orange-500 focus:ring-0"
                   />
                   {error && (
                     <p className="text-base text-red-600 dark:text-red-400 font-medium">{error}</p>
@@ -225,10 +225,10 @@ export default function Home() {
       </div>
 
       {/* Features Section */}
-      <div className="relative z-10 max-w-6xl mx-auto px-4 py-32">
+      <div id="features" className="relative z-10 max-w-6xl mx-auto px-4 py-32">
         <div className="text-center mb-16">
           <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-4" style={{ fontFamily: 'var(--font-playfair)' }}>Why Wedding Wall?</h2>
-          <p className="text-lg text-gray-700 dark:text-gray-300 font-medium max-w-2xl mx-auto">Everything you need to capture and celebrate your special day</p>
+          <p className="text-lg text-gray-900 dark:text-gray-200 font-medium max-w-2xl mx-auto">Everything you need to capture and celebrate your special day</p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {[
@@ -271,14 +271,14 @@ export default function Home() {
                 <FontAwesomeIcon icon={feature.icon} />
               </div>
               <h3 className="font-bold text-xl text-gray-900 dark:text-white mb-3" style={{ fontFamily: 'var(--font-playfair)' }}>{feature.title}</h3>
-              <p className="text-gray-700 dark:text-gray-300 text-base font-medium leading-relaxed">{feature.description}</p>
+              <p className="text-gray-900 dark:text-gray-300 text-base font-medium leading-relaxed">{feature.description}</p>
             </div>
           ))}
         </div>
       </div>
 
       {/* Footer */}
-      <div className="border-t border-gray-200 py-8 text-center text-gray-600 text-sm">
+      <div className="border-t border-gray-200 dark:border-white/10 py-8 text-center text-gray-600 dark:text-gray-400 text-sm">
         <p className="flex items-center justify-center gap-2">
           <FontAwesomeIcon icon={faHeart} className="w-4 h-4 text-red-500" />
           Made with love for weddings • PWA ready for offline use

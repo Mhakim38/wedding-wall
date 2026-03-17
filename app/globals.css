@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-@custom-variant dark (&:where(.dark, .dark *));
+@variant dark (&:where(.dark, .dark *));
 
 :root {
   --background: #ffffff;
@@ -85,7 +85,7 @@ h5, h6 {
 p {
   font-weight: 400;
   line-height: 1.7;
-  color: var(--foreground);
+  /* color removed to allow utility classes to work properly */
 }
 
 /* Small text utility */

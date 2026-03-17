@@ -138,7 +138,7 @@ function UploadContent() {
               value={guestName}
               onChange={(e) => setGuestName(e.target.value)}
               disabled={loading}
-              className="h-14 text-base px-4 rounded-xl border-2 border-gray-200 dark:border-gray-700 dark:bg-black/50 dark:text-white focus:border-orange-500 focus:ring-0 placeholder:text-gray-400 dark:placeholder:text-gray-600"
+              className="h-14 text-base px-4 rounded-xl border-2 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white bg-white dark:bg-black/50 focus:border-orange-500 focus:ring-0 placeholder:text-gray-400 dark:placeholder:text-gray-500"
             />
           </div>
 

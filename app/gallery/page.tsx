@@ -3,7 +3,7 @@
 import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faMoon, faSun, faCamera, faHome } from '@fortawesome/free-solid-svg-icons';
+import { faMoon, faSun, faCamera, faHome, faCheck, faCopy } from '@fortawesome/free-solid-svg-icons';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 
@@ -81,14 +81,26 @@ function GalleryContent() {
   const searchParams = useSearchParams();
   const sessionId = searchParams.get('sessionId');
   const [photos, setPhotos] = useState<Photo[]>([]);
+  const [sessionCode, setSessionCode] = useState<string>('');
+  const [eventName, setEventName] = useState<string>('');
+  const [copied, setCopied] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
     if (!sessionId) return;
 
-    const fetchPhotos = async () => {
+    const fetchSessionData = async () => {
       try {
+        // Fetch session details (code, name)
+        const sessionRes = await fetch(`/api/session?sessionId=${sessionId}`);
+        if (sessionRes.ok) {
+          const sessionData = await sessionRes.json();
+          setSessionCode(sessionData.code);
+          setEventName(sessionData.eventName);
+        }
+
+        // Fetch photos
         const response = await fetch(`/api/photos?sessionId=${sessionId}`);
         if (response.ok) {
           const data = await response.json();
@@ -100,7 +112,7 @@ function GalleryContent() {
           setPhotos([]);
         }
       } catch (err) {
-        console.error('Failed to fetch photos:', err);
+        console.error('Failed to fetch data:', err);
         setError('Network error: Check your connection and try again');
         setPhotos([]);
       } finally {
@@ -109,10 +121,17 @@ function GalleryContent() {
     };
 
     // Fetch initially
-    fetchPhotos();
+    fetchSessionData();
 
     // Poll every 3 seconds for new photos
-    const interval = setInterval(fetchPhotos, 3000);
+    const interval = setInterval(async () => {
+        const response = await fetch(`/api/photos?sessionId=${sessionId}`);
+        if (response.ok) {
+          const data = await response.json();
+          setPhotos(data);
+        }
+    }, 3000);
+    
     return () => clearInterval(interval);
   }, [sessionId]);
 
@@ -167,15 +186,76 @@ function GalleryContent() {
           </div>
         ) : (
           <>
-            {/* Photo Count Badge */}
-            <div className="mb-8 flex items-center justify-between">
-              <div className="flex items-center gap-3 rounded-full bg-white/65 dark:bg-gray-900/60 backdrop-blur-md border border-white/70 dark:border-gray-700/50 px-4 py-2.5 shadow-md">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-r from-orange-500 to-pink-500 flex items-center justify-center">
-                  <FontAwesomeIcon icon={faCamera} className="w-5 h-5 text-white" />
+            {/* Header Info: Code & Count */}
+            <div className="mb-8 flex flex-col items-center gap-4 text-center">
+              
+              {/* Wedding Code Badge (Spotlight) */}
+              {sessionCode && (
+                <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border border-orange-200 dark:border-orange-500/30 rounded-2xl px-6 py-4 shadow-warm-md w-full max-w-sm">
+                  <p className="text-xs uppercase tracking-widest text-gray-500 dark:text-gray-400 font-bold mb-1">Wedding Code</p>
+                  <div className="flex items-center justify-center gap-3">
+                    <span className="text-3xl font-bold font-mono text-orange-600 dark:text-orange-400 tracking-widest">{sessionCode}</span>
+                    <button 
+                      onClick={() => {
+                        const text = sessionCode;
+                        // Robust clipboard copy with fallback for mobile/PWA/non-secure contexts
+                        if (navigator.clipboard && window.isSecureContext) {
+                          navigator.clipboard.writeText(text).then(() => {
+                            setCopied(true);
+                            setTimeout(() => setCopied(false), 2000);
+                          }).catch(err => {
+                            console.error('Async: Could not copy text: ', err);
+                          });
+                        } else {
+                          // Fallback: TextArea hack
+                          const textArea = document.createElement("textarea");
+                          textArea.value = text;
+                          textArea.style.position = "fixed";  // Avoid scrolling to bottom
+                          textArea.style.left = "-9999px";
+                          textArea.style.top = "0";
+                          document.body.appendChild(textArea);
+                          textArea.focus();
+                          textArea.select();
+                          try {
+                            const successful = document.execCommand('copy');
+                            if (successful) {
+                              setCopied(true);
+                              setTimeout(() => setCopied(false), 2000);
+                            } else {
+                              console.error('Fallback: Copying text command was unsuccessful');
+                            }
+                          } catch (err) {
+                            console.error('Fallback: Oops, unable to copy', err);
+                          }
+                          document.body.removeChild(textArea);
+                        }
+                      }}
+                      className="group relative p-2 rounded-full hover:bg-orange-50 dark:hover:bg-white/5 transition-colors"
+                      title="Copy Code"
+                    >
+                      <FontAwesomeIcon 
+                        icon={copied ? faCheck : faCopy} 
+                        className={`w-5 h-5 transition-colors duration-200 ${copied ? 'text-green-500' : 'text-gray-400 group-hover:text-orange-500'}`} 
+                      />
+                      
+                      {/* Copied Tooltip */}
+                      <span className={`absolute -top-10 left-1/2 transform -translate-x-1/2 px-2 py-1 bg-gray-800 text-white text-xs rounded shadow-lg whitespace-nowrap transition-all duration-200 ${copied ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2 pointer-events-none'}`}>
+                        Copied!
+                        <span className="absolute bottom-[-4px] left-1/2 -translate-x-1/2 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-gray-800"></span>
+                      </span>
+                    </button>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">Beautiful Moments</p>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-white">{photos.length} {photos.length === 1 ? 'Photo' : 'Photos'}</p>
+              )}
+
+              {/* Photo Count Pill (Smaller) */}
+              <div className="inline-flex items-center gap-2 rounded-full bg-white/60 dark:bg-gray-900/60 backdrop-blur-sm border border-white/50 dark:border-gray-700/50 px-3 py-1.5 shadow-sm">
+                <div className="w-6 h-6 rounded-full bg-gradient-to-r from-orange-500 to-pink-500 flex items-center justify-center shadow-sm shrink-0">
+                  <FontAwesomeIcon icon={faCamera} className="w-2.5 h-2.5 text-white pt-0" />
+                </div>
+                <div className="flex items-baseline gap-1.5">
+                  <span className="text-sm font-bold text-gray-900 dark:text-white">{photos.length}</span>
+                  <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">Moments captured</span>
                 </div>
               </div>
             </div>
