@@ -141,7 +141,7 @@ function NavbarContent() {
           <div 
             className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out ${
               mobileMenuOpen 
-                ? 'max-h-96 opacity-100 mt-4 border-t border-gray-100 dark:border-white/10 pt-2' 
+                ? 'max-h-96 opacity-100 mt-2 border-t border-gray-100 dark:border-white/10 pt-1' 
                 : 'max-h-0 opacity-0 mt-0 pt-0 border-transparent'
             }`}
           >
