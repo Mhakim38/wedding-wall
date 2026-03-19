@@ -9,8 +9,6 @@ import Link from 'next/link';
 
 interface Photo {
   id: string;
-  s3Key: string;
-  s3Url: string;
   guest: { name: string };
   width?: number;
   height?: number;
@@ -50,7 +48,7 @@ function GalleryItem({ photo, idx }: { photo: Photo; idx: number }) {
     >
       {/* Photo Image */}
       <img
-        src={`/api/image?key=${encodeURIComponent(photo.s3Key)}`}
+        src={`/api/image?id=${photo.id}`}
         alt={`Photo by ${photo.guest.name}`}
         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
         loading="lazy"

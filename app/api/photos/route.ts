@@ -103,7 +103,17 @@ export async function GET(request: NextRequest) {
       orderBy: { uploadedAt: 'desc' },
     });
 
-    return NextResponse.json(photos, { status: 200 });
+    // Sanitize response: Remove raw S3 URLs and keys
+    // Frontend should use /api/image?id=PHOTO_ID instead of key
+    const sanitizedPhotos = photos.map(photo => ({
+      id: photo.id,
+      guest: photo.guest,
+      width: photo.width,
+      height: photo.height,
+      uploadedAt: photo.uploadedAt
+    }));
+
+    return NextResponse.json(sanitizedPhotos, { status: 200 });
   } catch (error) {
     console.error('Error fetching photos:', error);
     return NextResponse.json(

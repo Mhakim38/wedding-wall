@@ -1,23 +1,42 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GetObjectCommand } from '@aws-sdk/client-s3';
 import s3Client from '@/lib/s3';
+import { prisma } from '@/lib/prisma';
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const s3Key = searchParams.get('key');
+    const photoId = searchParams.get('id');
 
-    if (!s3Key) {
-      return NextResponse.json(
-        { error: 'Missing s3Key parameter' },
+    let keyToFetch = s3Key;
+
+    // If ID is provided, look up the key from the database (more secure)
+    if (photoId) {
+      const photo = await prisma.photo.findUnique({
+        where: { id: photoId },
+        select: { s3Key: true }
+      });
+      
+      if (!photo) {
+        return NextResponse.json(
+          { error: 'Photo not found' },
+          { status: 404 }
+        );
+      }
+      keyToFetch = photo.s3Key;
+    } 
+    if (!keyToFetch) {
+       return NextResponse.json(
+        { error: 'Missing id or key parameter' },
         { status: 400 }
       );
     }
 
     // Security: Only allow photos/ prefix to prevent directory traversal
-    if (!s3Key.startsWith('photos/')) {
+    if (!keyToFetch.startsWith('photos/')) {
       return NextResponse.json(
-        { error: 'Invalid s3Key' },
+        { error: 'Invalid photo key' },
         { status: 403 }
       );
     }
@@ -25,7 +44,7 @@ export async function GET(request: NextRequest) {
     // Fetch object from S3
     const getCommand = new GetObjectCommand({
       Bucket: process.env.AWS_S3_BUCKET!,
-      Key: s3Key,
+      Key: keyToFetch,
     });
 
     const response = await s3Client.send(getCommand);
