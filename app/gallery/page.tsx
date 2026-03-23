@@ -280,27 +280,27 @@ function GalleryContent() {
                   </div>
                 </div>
 
-                {/* Action Buttons Row */}
-                <div className="flex items-center justify-center gap-3 w-full">
+                {/* Action Buttons Row - Centered Icons */}
+                <div className="flex items-center justify-center gap-4 w-full mt-2">
                     {/* QR Code Icon Button */}
                     {qrCodeUrl && (
                       <button
                         onClick={() => setShowQrModal(true)}
-                        className="bg-white dark:bg-gray-800 p-3 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:text-orange-500 dark:hover:text-orange-400 transition-colors"
+                        className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md p-3 rounded-full shadow-sm border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 active:text-orange-500 active:border-orange-200 transition-all duration-200"
                         title="Show Join QR"
                       >
                         <FontAwesomeIcon icon={faQrcode} className="w-5 h-5" />
                       </button>
                     )}
 
-                    {/* Gift QR Button */}
+                    {/* Gift QR Icon Button */}
                     {giftQrUrl && (
                       <button
                         onClick={() => setShowGiftModal(true)}
-                        className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-red-500 to-pink-600 text-white rounded-xl shadow-md active:scale-[0.98] transition-all duration-200"
+                        className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md p-3 rounded-full shadow-sm border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 active:text-red-500 active:border-red-200 transition-all duration-200"
+                        title="Send Gift (Angpao)"
                       >
-                        <FontAwesomeIcon icon={faGift} className="w-4 h-4" />
-                        <span className="font-semibold text-sm">Send Gift (Angpao)</span>
+                        <FontAwesomeIcon icon={faGift} className="w-5 h-5" />
                       </button>
                     )}
                 </div>
