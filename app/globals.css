@@ -195,3 +195,19 @@ p {
   /* No custom CSS needed here - we will use Tailwind utility classes in the component */
 }
 
+
+/* Marquee Animation */
+@keyframes marquee-left {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee-left {
+  animation: marquee-left 30s linear infinite;
+  display: flex;
+  width: max-content;
+}
+
+.animate-marquee-left:hover {
+  animation-play-state: paused;
+}

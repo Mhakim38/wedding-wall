@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useRef, useState } from 'react';
+import { Suspense, useRef, useState, useEffect } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -13,6 +13,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import Link from 'next/link';
+import imageCompression from 'browser-image-compression';
 
 function UploadContent() {
   const searchParams = useSearchParams();
@@ -25,6 +26,7 @@ function UploadContent() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
+  const [message, setMessage] = useState('');
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
@@ -45,6 +47,7 @@ function UploadContent() {
 
     setFile(selectedFile);
     setError('');
+    setMessage('');
 
     const reader = new FileReader();
     reader.onload = (e) => {
@@ -62,6 +65,7 @@ function UploadContent() {
 
     setLoading(true);
     setError('');
+    setMessage('Uploading...');
 
     try {
       // Upload file to backend (which uploads to S3)
@@ -224,6 +228,13 @@ function UploadContent() {
               </div>
             )}
           </div>
+
+          {/* Processing Message */}
+          {message && !error && (
+            <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl text-center">
+                <p className="text-blue-700 dark:text-blue-300 font-medium animate-pulse">{message}</p>
+            </div>
+          )}
 
           {/* Error Message */}
           {error && (

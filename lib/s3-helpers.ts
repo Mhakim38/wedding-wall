@@ -1,6 +1,7 @@
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import s3Client from "./s3";
+import { validateContentType } from "./s3-upload";
 
 const BUCKET_NAME = process.env.AWS_S3_BUCKET || "wedding-wall";
 const UPLOAD_EXPIRATION = 15 * 60; // 15 minutes
@@ -14,6 +15,8 @@ export async function generatePresignedUploadUrl(
   s3Key: string;
 }> {
   try {
+    const validatedContentType = validateContentType(contentType);
+
     // Generate S3 key path
     const timestamp = Date.now();
     const sanitizedFileName = fileName.replace(/[^a-zA-Z0-9.-]/g, "_");
@@ -23,7 +26,7 @@ export async function generatePresignedUploadUrl(
     const putCommand = new PutObjectCommand({
       Bucket: BUCKET_NAME,
       Key: s3Key,
-      ContentType: contentType,
+      ContentType: validatedContentType,
     });
 
     // Generate signed URL

@@ -7,6 +7,8 @@ import { faMoon, faSun, faCamera, faHome, faCheck, faCopy } from '@fortawesome/f
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 
+import QRCode from 'qrcode';
+
 interface Photo {
   id: string;
   guest: { name: string };
@@ -36,7 +38,6 @@ function GalleryItem({ photo, idx }: { photo: Photo; idx: number }) {
       colSpan = 'col-span-1';
       rowSpan = 'row-span-2';
     }
-    // Square: Span 1 col, 1 row (default)
   }
 
   return (
@@ -81,6 +82,7 @@ function GalleryContent() {
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [sessionCode, setSessionCode] = useState<string>('');
   const [eventName, setEventName] = useState<string>('');
+  const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
   const [copied, setCopied] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -96,6 +98,22 @@ function GalleryContent() {
           const sessionData = await sessionRes.json();
           setSessionCode(sessionData.code);
           setEventName(sessionData.eventName);
+
+          // Generate QR Code for the session URL
+          try {
+            const currentUrl = `${window.location.origin}/?code=${sessionData.code}`;
+            const qrDataUrl = await QRCode.toDataURL(currentUrl, {
+              width: 200,
+              margin: 2,
+              color: {
+                dark: '#000000',
+                light: '#ffffff00', // Transparent background
+              },
+            });
+            setQrCodeUrl(qrDataUrl);
+          } catch (qrErr) {
+            console.error('QR Generation failed', qrErr);
+          }
         }
 
         // Fetch photos
@@ -189,12 +207,22 @@ function GalleryContent() {
               
               {/* Wedding Code Badge (Spotlight) */}
               {sessionCode && (
-                <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border border-orange-200 dark:border-orange-500/30 rounded-2xl px-6 py-4 shadow-warm-md w-full max-w-sm">
-                  <p className="text-xs uppercase tracking-widest text-gray-500 dark:text-gray-400 font-bold mb-1">Wedding Code</p>
-                  <div className="flex items-center justify-center gap-3">
-                    <span className="text-3xl font-bold font-mono text-orange-600 dark:text-orange-400 tracking-widest">{sessionCode}</span>
-                    <button 
-                      onClick={() => {
+                <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border border-orange-200 dark:border-orange-500/30 rounded-2xl px-6 py-4 shadow-warm-md w-full max-w-sm flex flex-col items-center gap-4">
+                  
+                  {/* QR Code Display */}
+                  {qrCodeUrl && (
+                    <div className="bg-white p-2 rounded-xl shadow-sm border border-gray-100">
+                      <img src={qrCodeUrl} alt="Scan to Join" className="w-32 h-32 md:w-40 md:h-40 object-contain" />
+                      <p className="text-[10px] text-center text-gray-500 mt-1 uppercase tracking-widest">Scan to Join</p>
+                    </div>
+                  )}
+
+                  <div className="w-full">
+                    <p className="text-xs uppercase tracking-widest text-gray-500 dark:text-gray-400 font-bold mb-1 text-center">Wedding Code</p>
+                    <div className="flex items-center justify-center gap-3">
+                      <span className="text-3xl font-bold font-mono text-orange-600 dark:text-orange-400 tracking-widest">{sessionCode}</span>
+                      <button 
+                        onClick={() => {
                         const text = sessionCode;
                         // Robust clipboard copy with fallback for mobile/PWA/non-secure contexts
                         if (navigator.clipboard && window.isSecureContext) {
@@ -244,6 +272,7 @@ function GalleryContent() {
                     </button>
                   </div>
                 </div>
+              </div>
               )}
 
               {/* Photo Count Pill (Smaller) */}
