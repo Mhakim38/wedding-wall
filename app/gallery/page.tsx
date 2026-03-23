@@ -3,7 +3,7 @@
 import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faMoon, faSun, faCamera, faHome, faCheck, faCopy } from '@fortawesome/free-solid-svg-icons';
+import { faMoon, faSun, faCamera, faHome, faCheck, faCopy, faQrcode, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 
@@ -83,6 +83,7 @@ function GalleryContent() {
   const [sessionCode, setSessionCode] = useState<string>('');
   const [eventName, setEventName] = useState<string>('');
   const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
+  const [showQrModal, setShowQrModal] = useState(false);
   const [copied, setCopied] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -204,23 +205,24 @@ function GalleryContent() {
           <>
             {/* Header Info: Code & Count */}
             <div className="mb-8 flex flex-col items-center gap-4 text-center">
+
+              {/* Dynamic Wedding Header */}
+              {eventName && (
+                <h1 className="text-3xl md:text-5xl font-bold text-gray-900 dark:text-white mb-2 font-serif px-4">
+                  Welcome to <span className="text-pink-600 dark:text-pink-400 font-cursive block mt-2">{eventName}&apos;s Wedding</span>
+                </h1>
+              )}
               
               {/* Wedding Code Badge (Spotlight) */}
               {sessionCode && (
                 <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border border-orange-200 dark:border-orange-500/30 rounded-2xl px-6 py-4 shadow-warm-md w-full max-w-sm flex flex-col items-center gap-4">
                   
-                  {/* QR Code Display */}
-                  {qrCodeUrl && (
-                    <div className="bg-white p-2 rounded-xl shadow-sm border border-gray-100">
-                      <img src={qrCodeUrl} alt="Scan to Join" className="w-32 h-32 md:w-40 md:h-40 object-contain" />
-                      <p className="text-[10px] text-center text-gray-500 mt-1 uppercase tracking-widest">Scan to Join</p>
-                    </div>
-                  )}
-
                   <div className="w-full">
                     <p className="text-xs uppercase tracking-widest text-gray-500 dark:text-gray-400 font-bold mb-1 text-center">Wedding Code</p>
                     <div className="flex items-center justify-center gap-3">
                       <span className="text-3xl font-bold font-mono text-orange-600 dark:text-orange-400 tracking-widest">{sessionCode}</span>
+                      
+                      {/* Copy Button */}
                       <button 
                         onClick={() => {
                         const text = sessionCode;
@@ -270,6 +272,17 @@ function GalleryContent() {
                         <span className="absolute bottom-[-4px] left-1/2 -translate-x-1/2 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-gray-800"></span>
                       </span>
                     </button>
+
+                    {/* QR Code Icon Button */}
+                    {qrCodeUrl && (
+                      <button
+                        onClick={() => setShowQrModal(true)}
+                        className="p-2 rounded-full hover:bg-orange-50 dark:hover:bg-white/5 transition-colors text-gray-400 hover:text-orange-500"
+                        title="Show QR Code"
+                      >
+                        <FontAwesomeIcon icon={faQrcode} className="w-5 h-5" />
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>
@@ -296,6 +309,30 @@ function GalleryContent() {
           </>
         )}
       </main>
+
+      {/* QR Modal - Placed at root level to avoid clipping */}
+      {showQrModal && qrCodeUrl && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200" onClick={() => setShowQrModal(false)}>
+          <div className="bg-white dark:bg-gray-900 p-8 rounded-3xl shadow-2xl max-w-sm w-full relative transform scale-100 transition-transform border border-gray-200 dark:border-gray-700" onClick={e => e.stopPropagation()}>
+            <button 
+              onClick={() => setShowQrModal(false)}
+              className="absolute top-4 right-4 p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
+            >
+              <FontAwesomeIcon icon={faTimes} className="w-6 h-6" />
+            </button>
+            
+            <div className="text-center space-y-6 pt-2">
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-white font-serif">Scan to Join</h3>
+              <div className="bg-white p-6 rounded-2xl shadow-inner border border-gray-100 inline-block w-full flex justify-center">
+                <img src={qrCodeUrl} alt="Scan to Join" className="w-64 h-64 object-contain mix-blend-multiply" />
+              </div>
+              <p className="text-base text-gray-500 dark:text-gray-400 font-medium px-4">
+                Ask guests to scan this code to join the gallery instantly
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
