@@ -20,6 +20,10 @@ model WeddingSession {
   createdAt DateTime @default(now())
   expiresAt DateTime // When the session closes
 
+  // New Fields
+  giftQrCodeUrl String?
+  giftQrCodeKey String?
+
   // Relations
   guests  Guest[]
   photos  Photo[]

@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCamera, faHeart, faLock } from '@fortawesome/free-solid-svg-icons';
+import { faCamera, faHeart, faLock, faQrcode, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
@@ -12,6 +12,7 @@ export default function AdminPage() {
   const [coupleName, setCoupleName] = useState('');
   const [eventDate, setEventDate] = useState('');
   const [adminPassword, setAdminPassword] = useState('');
+  const [giftQrFile, setGiftQrFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -27,6 +28,29 @@ export default function AdminPage() {
 
     try {
       const eventDateTime = new Date(eventDate).toISOString();
+      let giftQrCodeUrl = null;
+      let giftQrCodeKey = null;
+
+      // Upload Gift QR if present
+      if (giftQrFile) {
+        const formData = new FormData();
+        formData.append('adminPassword', adminPassword);
+        formData.append('file', giftQrFile);
+
+        const uploadRes = await fetch('/api/admin/upload-gift-qr', {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (!uploadRes.ok) {
+          const errData = await uploadRes.json();
+          throw new Error(errData.error || 'Failed to upload QR code');
+        }
+
+        const uploadData = await uploadRes.json();
+        giftQrCodeUrl = uploadData.url;
+        giftQrCodeKey = uploadData.key;
+      }
 
       const response = await fetch('/api/session', {
         method: 'POST',
@@ -35,6 +59,8 @@ export default function AdminPage() {
           eventName: coupleName,
           eventDate: eventDateTime,
           adminPassword: adminPassword,
+          giftQrCodeUrl,
+          giftQrCodeKey,
         }),
       });
 
@@ -108,6 +134,57 @@ export default function AdminPage() {
                         disabled={loading}
                         className="h-14 text-base px-4 rounded-xl border-2 border-gray-200 dark:border-white/10 text-gray-900 dark:text-white bg-white dark:bg-black/50 focus:border-orange-500 focus:ring-0"
                       />
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 ml-1">
+                        Gift QR Code (Optional)
+                      </label>
+                      <div className="relative">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => setGiftQrFile(e.target.files?.[0] || null)}
+                          className="hidden"
+                          id="qr-upload"
+                          disabled={loading}
+                        />
+                        <label
+                          htmlFor="qr-upload"
+                          className={`flex items-center justify-center w-full h-14 px-4 rounded-xl border-2 border-dashed transition-colors cursor-pointer ${
+                            giftQrFile 
+                              ? 'border-orange-500 bg-orange-50 dark:bg-orange-900/20 text-orange-700 dark:text-orange-300' 
+                              : 'border-gray-300 dark:border-gray-600 hover:border-orange-500 bg-gray-50 dark:bg-black/30 text-gray-500 dark:text-gray-400'
+                          }`}
+                        >
+                          {giftQrFile ? (
+                            <span className="font-medium truncate flex items-center">
+                              <FontAwesomeIcon icon={faQrcode} className="mr-2" />
+                              {giftQrFile.name}
+                            </span>
+                          ) : (
+                            <span className="flex items-center">
+                              <FontAwesomeIcon icon={faQrcode} className="mr-2" />
+                              Upload QR Code Image
+                            </span>
+                          )}
+                        </label>
+                        {giftQrFile && !loading && (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              setGiftQrFile(null);
+                            }}
+                            className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-gray-400 hover:text-red-500 transition-colors"
+                          >
+                            <FontAwesomeIcon icon={faTimes} />
+                          </button>
+                        )}
+                      </div>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 ml-1">
+                        Guests can scan this to send money gifts (Angpao).
+                      </p>
                     </div>
 
                     <div className="space-y-2">

@@ -3,7 +3,7 @@ import { prisma } from '@/lib/prisma';
 
 export async function POST(request: NextRequest) {
   try {
-    const { eventName, eventDate, adminPassword } = await request.json();
+    const { eventName, eventDate, adminPassword, giftQrCodeUrl, giftQrCodeKey } = await request.json();
 
     // Security Check: Verify Admin Password
     if (!process.env.ADMIN_PASSWORD) {
@@ -35,6 +35,8 @@ export async function POST(request: NextRequest) {
       data: {
         code,
         eventName,
+        giftQrCodeUrl,
+        giftQrCodeKey,
         eventDate: new Date(eventDate),
         expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
       },

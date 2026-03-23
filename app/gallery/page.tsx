@@ -3,7 +3,7 @@
 import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faMoon, faSun, faCamera, faHome, faCheck, faCopy, faQrcode, faTimes } from '@fortawesome/free-solid-svg-icons';
+import { faMoon, faSun, faCamera, faHome, faCheck, faCopy, faQrcode, faTimes, faGift } from '@fortawesome/free-solid-svg-icons';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 
@@ -83,7 +83,9 @@ function GalleryContent() {
   const [sessionCode, setSessionCode] = useState<string>('');
   const [eventName, setEventName] = useState<string>('');
   const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
+  const [giftQrUrl, setGiftQrUrl] = useState<string | null>(null);
   const [showQrModal, setShowQrModal] = useState(false);
+  const [showGiftModal, setShowGiftModal] = useState(false);
   const [copied, setCopied] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -99,6 +101,9 @@ function GalleryContent() {
           const sessionData = await sessionRes.json();
           setSessionCode(sessionData.code);
           setEventName(sessionData.eventName);
+          if (sessionData.giftQrCodeUrl) {
+            setGiftQrUrl(sessionData.giftQrCodeUrl);
+          }
 
           // Generate QR Code for the session URL
           try {
@@ -284,6 +289,17 @@ function GalleryContent() {
                       </button>
                     )}
                   </div>
+
+                  {/* Gift QR Button */}
+                  {giftQrUrl && (
+                    <button
+                      onClick={() => setShowGiftModal(true)}
+                      className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-red-500 to-pink-600 text-white rounded-xl shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200 mt-2"
+                    >
+                      <FontAwesomeIcon icon={faGift} className="w-4 h-4" />
+                      <span className="font-semibold text-sm">Send Gift (Angpao)</span>
+                    </button>
+                  )}
                 </div>
               </div>
               )}
@@ -328,6 +344,33 @@ function GalleryContent() {
               </div>
               <p className="text-base text-gray-500 dark:text-gray-400 font-medium px-4">
                 Ask guests to scan this code to join the gallery instantly
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Gift QR Modal */}
+      {showGiftModal && giftQrUrl && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200" onClick={() => setShowGiftModal(false)}>
+          <div className="bg-white dark:bg-gray-900 p-8 rounded-3xl shadow-2xl max-w-sm w-full relative transform scale-100 transition-transform border border-gray-200 dark:border-gray-700" onClick={e => e.stopPropagation()}>
+            <button 
+              onClick={() => setShowGiftModal(false)}
+              className="absolute top-4 right-4 p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
+            >
+              <FontAwesomeIcon icon={faTimes} className="w-6 h-6" />
+            </button>
+            
+            <div className="text-center space-y-6 pt-2">
+              <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 mb-2">
+                <FontAwesomeIcon icon={faGift} className="w-6 h-6" />
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-white font-serif">Wedding Gift</h3>
+              <div className="bg-white p-4 rounded-2xl shadow-inner border border-gray-100 inline-block w-full flex justify-center aspect-square items-center overflow-hidden">
+                <img src={giftQrUrl} alt="Scan to Send Gift" className="w-full h-full object-contain mix-blend-multiply" />
+              </div>
+              <p className="text-base text-gray-500 dark:text-gray-400 font-medium px-4">
+                Scan via e-wallet to send a gift directly to the couple
               </p>
             </div>
           </div>
