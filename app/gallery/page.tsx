@@ -213,16 +213,16 @@ function GalleryContent() {
 
               {/* Dynamic Wedding Header */}
               {eventName && (
-                <h1 className="text-3xl md:text-5xl font-bold text-gray-900 dark:text-white mb-2 font-serif px-4">
+                <h1 className="text-2xl md:text-5xl font-bold text-gray-900 dark:text-white mb-2 font-serif px-4">
                   Welcome to <span className="text-pink-600 dark:text-pink-400 font-cursive block mt-2">{eventName}&apos;s Wedding</span>
                 </h1>
               )}
               
               {/* Wedding Code Badge (Spotlight) */}
               {sessionCode && (
-                <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border border-orange-200 dark:border-orange-500/30 rounded-2xl px-6 py-4 shadow-warm-md w-full max-w-sm flex flex-col items-center gap-4">
-                  
-                  <div className="w-full">
+                <div className="flex flex-col items-center gap-2 w-full max-w-sm">
+                  {/* Code Box */}
+                  <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border border-orange-200 dark:border-orange-500/30 rounded-2xl px-6 py-4 shadow-warm-md w-full flex flex-col items-center justify-center">
                     <p className="text-xs uppercase tracking-widest text-gray-500 dark:text-gray-400 font-bold mb-1 text-center">Wedding Code</p>
                     <div className="flex items-center justify-center gap-3">
                       <span className="text-3xl font-bold font-mono text-orange-600 dark:text-orange-400 tracking-widest">{sessionCode}</span>
@@ -263,12 +263,12 @@ function GalleryContent() {
                           document.body.removeChild(textArea);
                         }
                       }}
-                      className="group relative p-2 rounded-full hover:bg-orange-50 dark:hover:bg-white/5 transition-colors"
+                      className="p-2 rounded-full text-gray-400 active:text-green-500 transition-colors"
                       title="Copy Code"
                     >
                       <FontAwesomeIcon 
                         icon={copied ? faCheck : faCopy} 
-                        className={`w-5 h-5 transition-colors duration-200 ${copied ? 'text-green-500' : 'text-gray-400 group-hover:text-orange-500'}`} 
+                        className={`w-5 h-5 transition-colors duration-200 ${copied ? 'text-green-500' : 'text-gray-400'}`} 
                       />
                       
                       {/* Copied Tooltip */}
@@ -277,31 +277,35 @@ function GalleryContent() {
                         <span className="absolute bottom-[-4px] left-1/2 -translate-x-1/2 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-gray-800"></span>
                       </span>
                     </button>
+                  </div>
+                </div>
 
+                {/* Action Buttons Row */}
+                <div className="flex items-center justify-center gap-3 w-full">
                     {/* QR Code Icon Button */}
                     {qrCodeUrl && (
                       <button
                         onClick={() => setShowQrModal(true)}
-                        className="p-2 rounded-full hover:bg-orange-50 dark:hover:bg-white/5 transition-colors text-gray-400 hover:text-orange-500"
-                        title="Show QR Code"
+                        className="bg-white dark:bg-gray-800 p-3 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:text-orange-500 dark:hover:text-orange-400 transition-colors"
+                        title="Show Join QR"
                       >
                         <FontAwesomeIcon icon={faQrcode} className="w-5 h-5" />
                       </button>
                     )}
-                  </div>
 
-                  {/* Gift QR Button */}
-                  {giftQrUrl && (
-                    <button
-                      onClick={() => setShowGiftModal(true)}
-                      className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-red-500 to-pink-600 text-white rounded-xl shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200 mt-2"
-                    >
-                      <FontAwesomeIcon icon={faGift} className="w-4 h-4" />
-                      <span className="font-semibold text-sm">Send Gift (Angpao)</span>
-                    </button>
-                  )}
+                    {/* Gift QR Button */}
+                    {giftQrUrl && (
+                      <button
+                        onClick={() => setShowGiftModal(true)}
+                        className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-red-500 to-pink-600 text-white rounded-xl shadow-md active:scale-[0.98] transition-all duration-200"
+                      >
+                        <FontAwesomeIcon icon={faGift} className="w-4 h-4" />
+                        <span className="font-semibold text-sm">Send Gift (Angpao)</span>
+                      </button>
+                    )}
                 </div>
               </div>
+              )}
               )}
 
               {/* Photo Count Pill (Smaller) */}
