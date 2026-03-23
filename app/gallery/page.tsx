@@ -3,7 +3,7 @@
 import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faMoon, faSun, faCamera, faHome, faCheck, faCopy, faQrcode, faTimes, faGift } from '@fortawesome/free-solid-svg-icons';
+import { faMoon, faSun, faCamera, faHome, faCheck, faCopy, faQrcode, faTimes, faGift, faEllipsis } from '@fortawesome/free-solid-svg-icons';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 
@@ -86,6 +86,7 @@ function GalleryContent() {
   const [giftQrUrl, setGiftQrUrl] = useState<string | null>(null);
   const [showQrModal, setShowQrModal] = useState(false);
   const [showGiftModal, setShowGiftModal] = useState(false);
+  const [showOptions, setShowOptions] = useState(false);
   const [copied, setCopied] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -277,32 +278,51 @@ function GalleryContent() {
                         <span className="absolute bottom-[-4px] left-1/2 -translate-x-1/2 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-gray-800"></span>
                       </span>
                     </button>
+
+                    {/* Options Toggle Button */}
+                    <button 
+                      onClick={() => setShowOptions(!showOptions)}
+                      className={`p-2 rounded-full transition-all duration-200 ${showOptions ? 'bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 rotate-90' : 'text-gray-400 active:text-orange-500'}`}
+                      title="More Options"
+                    >
+                      <FontAwesomeIcon icon={faEllipsis} className="w-5 h-5" />
+                    </button>
                   </div>
-                </div>
+                
+                  {/* Expandable Options Row */}
+                  <div className={`grid transition-all duration-300 ease-in-out w-full ${showOptions ? 'grid-rows-[1fr] opacity-100 pt-4 border-t border-gray-100 dark:border-gray-700/50 mt-2' : 'grid-rows-[0fr] opacity-0 pt-0 border-none mt-0'}`}>
+                    <div className="overflow-hidden">
+                      <div className="flex items-center justify-center gap-6">
+                        {/* QR Code Icon Button */}
+                        {qrCodeUrl && (
+                          <button
+                            onClick={() => setShowQrModal(true)}
+                            className="flex flex-col items-center gap-2 group"
+                            title="Show Join QR"
+                          >
+                            <div className="p-3 rounded-full bg-gray-50 dark:bg-gray-700/50 group-hover:bg-orange-50 dark:group-hover:bg-orange-900/20 text-gray-600 dark:text-gray-300 group-hover:text-orange-500 transition-colors">
+                              <FontAwesomeIcon icon={faQrcode} className="w-5 h-5" />
+                            </div>
+                            <span className="text-[10px] font-medium text-gray-500 uppercase tracking-wider">Join</span>
+                          </button>
+                        )}
 
-                {/* Action Buttons Row - Centered Icons */}
-                <div className="flex items-center justify-center gap-4 w-full mt-2">
-                    {/* QR Code Icon Button */}
-                    {qrCodeUrl && (
-                      <button
-                        onClick={() => setShowQrModal(true)}
-                        className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md p-3 rounded-full shadow-sm border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 active:text-orange-500 active:border-orange-200 transition-all duration-200"
-                        title="Show Join QR"
-                      >
-                        <FontAwesomeIcon icon={faQrcode} className="w-5 h-5" />
-                      </button>
-                    )}
-
-                    {/* Gift QR Icon Button */}
-                    {giftQrUrl && (
-                      <button
-                        onClick={() => setShowGiftModal(true)}
-                        className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md p-3 rounded-full shadow-sm border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 active:text-red-500 active:border-red-200 transition-all duration-200"
-                        title="Send Gift (Angpao)"
-                      >
-                        <FontAwesomeIcon icon={faGift} className="w-5 h-5" />
-                      </button>
-                    )}
+                        {/* Gift QR Icon Button */}
+                        {giftQrUrl && (
+                          <button
+                            onClick={() => setShowGiftModal(true)}
+                            className="flex flex-col items-center gap-2 group"
+                            title="Send Gift (Angpao)"
+                          >
+                            <div className="p-3 rounded-full bg-gray-50 dark:bg-gray-700/50 group-hover:bg-red-50 dark:group-hover:bg-red-900/20 text-gray-600 dark:text-gray-300 group-hover:text-red-500 transition-colors">
+                              <FontAwesomeIcon icon={faGift} className="w-5 h-5" />
+                            </div>
+                            <span className="text-[10px] font-medium text-gray-500 uppercase tracking-wider">Gift</span>
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
               )}
