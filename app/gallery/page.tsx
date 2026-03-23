@@ -306,7 +306,6 @@ function GalleryContent() {
                 </div>
               </div>
               )}
-              )}
 
               {/* Photo Count Pill (Smaller) */}
               <div className="inline-flex items-center gap-2 rounded-full bg-white/60 dark:bg-gray-900/60 backdrop-blur-sm border border-white/50 dark:border-gray-700/50 px-3 py-1.5 shadow-sm">
