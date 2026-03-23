@@ -264,7 +264,7 @@ function GalleryContent() {
                           document.body.removeChild(textArea);
                         }
                       }}
-                      className="p-2 rounded-full text-gray-400 active:text-green-500 transition-colors"
+                      className="rounded-full text-gray-400 active:text-green-500 transition-colors"
                       title="Copy Code"
                     >
                       <FontAwesomeIcon 
@@ -282,7 +282,7 @@ function GalleryContent() {
                     {/* Options Toggle Button */}
                     <button 
                       onClick={() => setShowOptions(!showOptions)}
-                      className={`p-2 rounded-full transition-all duration-200 ${showOptions ? 'bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 rotate-90' : 'text-gray-400 active:text-orange-500'}`}
+                      className={`rounded-full transition-all duration-200 ${showOptions ? 'text-orange-600 dark:text-orange-400 rotate-90' : 'text-gray-400 active:text-orange-500'}`}
                       title="More Options"
                     >
                       <FontAwesomeIcon icon={faEllipsis} className="w-5 h-5" />
