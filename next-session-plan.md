@@ -1,6 +1,8 @@
 # Wedding Wall - Next Session Plan
 
-## Current Status (2026-03-23)
+## Current Status (2026-03-25)
+- **Deployment:** Live on Vercel (Deployed Mar 25).
+- **Database:** Production DB synced with `giftQrCodeUrl`.
 - **UI:** Gallery layout refined for mobile.
   - Header is smaller on mobile.
   - QR Code & Gift buttons are minimal icon-only buttons.
@@ -10,8 +12,12 @@
   - Client-side image compression (max 1MB).
   - Session QR Code generation (on-the-fly).
   - Money Gift (Angpao) QR upload in Admin (`/secret-coffee`).
-- **Database:** Prisma schema updated with `giftQrCodeUrl`.
-- **Git:** All changes committed locally.
+
+- **Fixes (2026-03-25):**
+  - **UI Cleanup**: Removed duplicate "Uploading..." blue indicator (now only on button).
+  - **Name Persistence**: Fixed `localStorage` logic so guest name auto-fills.
+  - **Security**: Uploaded files now renamed to `timestamp-randomString.ext` to prevent malicious filenames.
+  - **Error Handling**: Added graceful handling for non-JSON errors (e.g., "Entity Too Large").
 
 ## Next Steps (Deployment)
 1. **Push to GitHub**: Sync local commits to the repository linked to Vercel.

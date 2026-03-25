@@ -55,10 +55,11 @@ export async function POST(request: NextRequest) {
     // Convert file to buffer
     const fileBuffer = Buffer.from(await file.arrayBuffer());
 
-    // Generate S3 key
+    // Generate secure random filename
     const timestamp = Date.now();
-    const sanitizedFileName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
-    const s3Key = `photos/${sessionId}/${timestamp}-${sanitizedFileName}`;
+    const randomString = Math.random().toString(36).substring(2, 15);
+    const fileExtension = file.name.split('.').pop()?.toLowerCase() || 'jpg';
+    const s3Key = `photos/${sessionId}/${timestamp}-${randomString}.${fileExtension}`;
 
     // Upload to S3
     const s3Url = await uploadToS3(s3Key, fileBuffer, file.type);

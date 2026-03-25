@@ -39,6 +39,14 @@ function UploadContent() {
     );
   }
 
+  useEffect(() => {
+    // Load guest name from localStorage if available
+    const savedName = localStorage.getItem('guestName');
+    if (savedName) {
+      setGuestName(savedName);
+    }
+  }, []);
+
   const handleFileSelect = (selectedFile: File) => {
     if (!selectedFile.type.startsWith('image/')) {
       setError('Please select a valid image file');
@@ -74,18 +82,33 @@ function UploadContent() {
       formData.append('guestName', guestName);
       formData.append('file', file);
 
+      // Save guest name to localStorage
+      localStorage.setItem('guestName', guestName);
+
       const uploadResponse = await fetch('/api/upload', {
         method: 'POST',
         body: formData,
       });
 
       if (!uploadResponse.ok) {
-        const errorData = await uploadResponse.json();
-        throw new Error(errorData.error || 'Failed to upload photo');
+        let errorMessage = 'Failed to upload photo';
+        try {
+          const errorData = await uploadResponse.json();
+          errorMessage = errorData.error || errorMessage;
+        } catch (e) {
+          // If JSON parsing fails, it's likely a 413 Payload Too Large or other server error returning HTML/text
+          if (uploadResponse.status === 413) {
+            errorMessage = 'Photo is too large. Please choose a smaller photo.';
+          } else {
+            errorMessage = `Upload failed (${uploadResponse.status}: ${uploadResponse.statusText})`;
+          }
+        }
+        throw new Error(errorMessage);
       }
 
       setSuccess(true);
-      setGuestName('');
+      // Don't clear guestName so it persists for next upload
+      // setGuestName(''); 
       setFile(null);
       setPreview(null);
 
@@ -229,12 +252,12 @@ function UploadContent() {
             )}
           </div>
 
-          {/* Processing Message */}
-          {message && !error && (
+          {/* Processing Message - REMOVED DUPLICATE BLUE INDICATOR */}
+          {/* {message && !error && (
             <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl text-center">
                 <p className="text-blue-700 dark:text-blue-300 font-medium animate-pulse">{message}</p>
             </div>
-          )}
+          )} */}
 
           {/* Error Message */}
           {error && (
