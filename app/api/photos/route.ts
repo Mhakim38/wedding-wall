@@ -72,7 +72,10 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   try {
-    const sessionId = request.nextUrl.searchParams.get('sessionId');
+    const { searchParams } = request.nextUrl;
+    const sessionId = searchParams.get('sessionId');
+    const page = parseInt(searchParams.get('page') || '1');
+    const limit = parseInt(searchParams.get('limit') || '12'); // Fetch 12 at a time
 
     if (!sessionId) {
       return NextResponse.json(
@@ -101,6 +104,8 @@ export async function GET(request: NextRequest) {
         },
       },
       orderBy: { uploadedAt: 'desc' },
+      skip: (page - 1) * limit,
+      take: limit,
     });
 
     // Sanitize response: Remove raw S3 URLs and keys
@@ -113,7 +118,15 @@ export async function GET(request: NextRequest) {
       uploadedAt: photo.uploadedAt
     }));
 
-    return NextResponse.json(sanitizedPhotos, { status: 200 });
+    // Return photos and pagination metadata
+    return NextResponse.json({
+      photos: sanitizedPhotos,
+      pagination: {
+        page,
+        limit,
+        hasMore: photos.length === limit,
+      }
+    }, { status: 200 });
   } catch (error) {
     console.error('Error fetching photos:', error);
     return NextResponse.json(

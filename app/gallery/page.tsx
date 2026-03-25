@@ -80,6 +80,10 @@ function GalleryContent() {
   const searchParams = useSearchParams();
   const sessionId = searchParams.get('sessionId');
   const [photos, setPhotos] = useState<Photo[]>([]);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [isFetchingMore, setIsFetchingMore] = useState(false);
+
   const [sessionCode, setSessionCode] = useState<string>('');
   const [eventName, setEventName] = useState<string>('');
   const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
@@ -123,11 +127,13 @@ function GalleryContent() {
           }
         }
 
-        // Fetch photos
-        const response = await fetch(`/api/photos?sessionId=${sessionId}`);
+        // Fetch photos (Initial load - Page 1)
+        const response = await fetch(`/api/photos?sessionId=${sessionId}&page=1&limit=12`);
         if (response.ok) {
           const data = await response.json();
-          setPhotos(data);
+          setPhotos(data.photos);
+          setHasMore(data.pagination.hasMore);
+          setPage(1); // Reset page to 1
           setError('');
         } else {
           const errorData = await response.json();
@@ -146,17 +152,68 @@ function GalleryContent() {
     // Fetch initially
     fetchSessionData();
 
-    // Poll every 3 seconds for new photos
+    // Poll every 5 seconds for new photos (Refreshes first page only to check for updates)
     const interval = setInterval(async () => {
-        const response = await fetch(`/api/photos?sessionId=${sessionId}`);
-        if (response.ok) {
-          const data = await response.json();
-          setPhotos(data);
+        // Only poll if we are at the top and not fetching more
+        if (window.scrollY < 100 && !isFetchingMore) {
+          const response = await fetch(`/api/photos?sessionId=${sessionId}&page=1&limit=12`);
+          if (response.ok) {
+            const data = await response.json();
+            // Merge new photos at the top if they are different
+            setPhotos(prevPhotos => {
+              const newPhotoIds = new Set(data.photos.map((p: Photo) => p.id));
+              const existingPhotos = prevPhotos.filter(p => !newPhotoIds.has(p.id));
+              return [...data.photos, ...existingPhotos];
+            });
+          }
         }
-    }, 3000);
+    }, 5000); // Increased polling interval to 5s to reduce load
     
     return () => clearInterval(interval);
   }, [sessionId]);
+
+  // Infinite Scroll Handler
+  useEffect(() => {
+    const handleScroll = () => {
+      if (
+        window.innerHeight + document.documentElement.scrollTop >= document.documentElement.offsetHeight - 500 &&
+        hasMore &&
+        !isFetchingMore &&
+        !loading
+      ) {
+        loadMorePhotos();
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [hasMore, isFetchingMore, loading, page, sessionId]);
+
+  const loadMorePhotos = async () => {
+    if (!sessionId || isFetchingMore || !hasMore) return;
+
+    setIsFetchingMore(true);
+    const nextPage = page + 1;
+
+    try {
+      const response = await fetch(`/api/photos?sessionId=${sessionId}&page=${nextPage}&limit=12`);
+      if (response.ok) {
+        const data = await response.json();
+        setPhotos(prev => {
+          // Filter out duplicates (photos that might have shifted pages or already exist)
+          const existingIds = new Set(prev.map(p => p.id));
+          const uniqueNewPhotos = data.photos.filter((p: Photo) => !existingIds.has(p.id));
+          return [...prev, ...uniqueNewPhotos];
+        });
+        setHasMore(data.pagination.hasMore);
+        setPage(nextPage);
+      }
+    } catch (err) {
+      console.error('Failed to load more photos:', err);
+    } finally {
+      setIsFetchingMore(false);
+    }
+  };
 
   if (!sessionId) {
     return (
@@ -340,11 +397,24 @@ function GalleryContent() {
             </div>
 
             {/* Tailwind Bento Grid Gallery */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 auto-rows-[250px] grid-flow-dense">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 auto-rows-[250px] grid-flow-dense pb-8">
               {photos.map((photo, idx) => (
                 <GalleryItem key={photo.id} photo={photo} idx={idx} />
               ))}
             </div>
+
+            {/* Loading More Indicator */}
+            {isFetchingMore && (
+              <div className="flex justify-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-orange-500"></div>
+              </div>
+            )}
+            
+            {!hasMore && photos.length > 0 && (
+              <div className="text-center py-8 text-gray-400 dark:text-gray-600 font-medium text-sm">
+                You've reached the end of the gallery
+              </div>
+            )}
           </>
         )}
       </main>
