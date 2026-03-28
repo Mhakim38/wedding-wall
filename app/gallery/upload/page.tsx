@@ -21,6 +21,7 @@ function UploadContent() {
   const sessionId = searchParams.get('sessionId');
 
   const [guestName, setGuestName] = useState('');
+  const [wishes, setWishes] = useState('');
   const [preview, setPreview] = useState<string | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
@@ -44,8 +45,11 @@ function UploadContent() {
     const savedName = localStorage.getItem('guestName');
     if (savedName) {
       setGuestName(savedName);
+    } else {
+      // Redirect to gallery if no name found (will trigger modal there)
+      router.push(`/gallery?sessionId=${sessionId}`);
     }
-  }, []);
+  }, [sessionId, router]);
 
   const handleFileSelect = (selectedFile: File) => {
     if (!selectedFile.type.startsWith('image/')) {
@@ -67,7 +71,7 @@ function UploadContent() {
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!guestName || !file) {
-      setError('Please enter your name and select a photo');
+      setError('Please select a photo');
       return;
     }
 
@@ -81,6 +85,9 @@ function UploadContent() {
       formData.append('sessionId', sessionId);
       formData.append('guestName', guestName);
       formData.append('file', file);
+      if (wishes.trim()) {
+        formData.append('description', wishes.trim());
+      }
 
       // Save guest name to localStorage
       localStorage.setItem('guestName', guestName);
@@ -109,6 +116,7 @@ function UploadContent() {
       setSuccess(true);
       // Don't clear guestName so it persists for next upload
       // setGuestName(''); 
+      setWishes('');
       setFile(null);
       setPreview(null);
 
@@ -154,19 +162,35 @@ function UploadContent() {
             Upload Photo
         </h1>
         <form onSubmit={handleUpload} className="space-y-8">
-          {/* Guest Name */}
+          {/* Welcome Message with Guest Name */}
+          {guestName && (
+            <div className="p-5 bg-gradient-to-r from-orange-50 to-pink-50 dark:from-orange-900/20 dark:to-pink-900/20 rounded-2xl border-2 border-white dark:border-gray-800 text-center">
+              <p className="text-gray-600 dark:text-gray-300 text-sm font-medium">
+                Uploading as
+              </p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1" style={{ fontFamily: 'var(--font-playfair)' }}>
+                {guestName} 💕
+              </p>
+            </div>
+          )}
+
+          {/* Wishes/Message Input */}
           <div className="space-y-3">
             <label className="block text-base font-semibold text-gray-900 dark:text-white">
-              Your Name
+              Your Wishes ✨
             </label>
-            <Input
-              type="text"
-              placeholder="Enter your name"
-              value={guestName}
-              onChange={(e) => setGuestName(e.target.value)}
+            <textarea
+              placeholder="Share your heartfelt wishes or message..."
+              value={wishes}
+              onChange={(e) => setWishes(e.target.value)}
               disabled={loading}
-              className="h-14 text-base px-4 rounded-xl border-2 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white bg-white dark:bg-black/50 focus:border-orange-500 focus:ring-0 placeholder:text-gray-400 dark:placeholder:text-gray-500"
+              rows={4}
+              className="w-full text-base px-5 py-4 rounded-2xl border-2 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white bg-white dark:bg-black/50 focus:border-orange-500 focus:ring-0 placeholder:text-gray-400 dark:placeholder:text-gray-500 resize-none transition-all duration-300 focus:shadow-lg"
+              style={{ fontFamily: 'var(--font-poppins)' }}
             />
+            <p className="text-xs text-gray-500 dark:text-gray-400 px-2">
+              Your message will appear with your photo in the gallery 💝
+            </p>
           </div>
 
           {/* Photo Selection */}
@@ -269,8 +293,8 @@ function UploadContent() {
           {/* Submit Button */}
           <Button
             type="submit"
-            disabled={!guestName || !file || loading}
-            className="w-full h-14 text-base font-semibold rounded-xl bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 transition-all duration-300 disabled:opacity-50"
+            disabled={!file || loading}
+            className="w-full h-14 text-base font-semibold rounded-full bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 transition-all duration-300 disabled:opacity-50 shadow-lg hover:shadow-xl hover:scale-[1.02]"
           >
             {loading ? 'Uploading...' : 'Upload Photo'}
           </Button>

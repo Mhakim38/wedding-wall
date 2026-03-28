@@ -113,6 +113,7 @@ export async function GET(request: NextRequest) {
     const sanitizedPhotos = photos.map(photo => ({
       id: photo.id,
       guest: photo.guest,
+      description: photo.description,
       width: photo.width,
       height: photo.height,
       uploadedAt: photo.uploadedAt

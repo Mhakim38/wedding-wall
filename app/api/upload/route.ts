@@ -8,6 +8,7 @@ export async function POST(request: NextRequest) {
     const sessionId = formData.get('sessionId') as string;
     const guestName = formData.get('guestName') as string;
     const file = formData.get('file') as File;
+    const description = formData.get('description') as string | null;
 
     if (!sessionId || !guestName || !file) {
       return NextResponse.json(
@@ -73,6 +74,7 @@ export async function POST(request: NextRequest) {
         s3Key,
         fileSize: file.size,
         mimeType: file.type,
+        description: description || null,
       },
     });
 

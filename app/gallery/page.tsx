@@ -6,12 +6,14 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMoon, faSun, faCamera, faHome, faCheck, faCopy, faQrcode, faTimes, faGift, faEllipsis } from '@fortawesome/free-solid-svg-icons';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import WelcomeNameModal from '@/components/WelcomeNameModal';
 
 import QRCode from 'qrcode';
 
 interface Photo {
   id: string;
   guest: { name: string };
+  description?: string | null;
   width?: number;
   height?: number;
   uploadedAt: string;
@@ -63,14 +65,19 @@ function GalleryItem({ photo, idx }: { photo: Photo; idx: number }) {
         }}
       />
 
-      {/* Overlay with Guest Name */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent md:from-black/60 md:via-transparent md:to-transparent opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
-        <p className="text-white font-semibold text-sm transform translate-y-0 md:translate-y-4 md:group-hover:translate-y-0 transition-transform duration-300">
+      {/* Overlay with Guest Name and Wishes */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent md:from-black/80 md:via-transparent md:to-transparent opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-5">
+        {/* Guest Name */}
+        <p className="text-white font-bold text-base transform translate-y-0 md:translate-y-4 md:group-hover:translate-y-0 transition-transform duration-300" style={{ fontFamily: 'var(--font-playfair)' }}>
           {photo.guest.name}
         </p>
-        <p className="text-white/80 text-xs mt-0.5 transform translate-y-0 md:translate-y-4 md:group-hover:translate-y-0 transition-transform duration-300 delay-75">
-          {new Date(photo.uploadedAt).toLocaleDateString()}
-        </p>
+        
+        {/* Wishes/Message */}
+        {photo.description && (
+          <p className="text-white/90 text-sm mt-2 leading-relaxed line-clamp-3 transform translate-y-0 md:translate-y-4 md:group-hover:translate-y-0 transition-transform duration-300 delay-75">
+            &ldquo;{photo.description}&rdquo;
+          </p>
+        )}
       </div>
     </div>
   );
@@ -83,6 +90,7 @@ function GalleryContent() {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [isFetchingMore, setIsFetchingMore] = useState(false);
+  const [showNameModal, setShowNameModal] = useState(false);
 
   const [sessionCode, setSessionCode] = useState<string>('');
   const [eventName, setEventName] = useState<string>('');
@@ -94,6 +102,14 @@ function GalleryContent() {
   const [copied, setCopied] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+
+  // Check if guest name exists in localStorage
+  useEffect(() => {
+    const savedName = localStorage.getItem('guestName');
+    if (!savedName) {
+      setShowNameModal(true);
+    }
+  }, []);
 
   useEffect(() => {
     if (!sessionId) return;
@@ -225,6 +241,15 @@ function GalleryContent() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-pink-50 dark:from-gray-900 dark:via-black dark:to-gray-900">
+      {/* Welcome Name Modal */}
+      {showNameModal && (
+        <WelcomeNameModal 
+          onNameSubmit={(name) => {
+            setShowNameModal(false);
+          }} 
+        />
+      )}
+      
       {/* Header removed - using global Navbar */}
       <div className="pt-20"> {/* Add padding for fixed navbar */}
       </div>
