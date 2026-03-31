@@ -1,33 +1,28 @@
 // Push Notification Utilities for Wedding Wall
 import webpush from 'web-push';
-import fs from 'fs';
-import path from 'path';
 
-// VAPID keys file path
-const VAPID_KEYS_PATH = path.join(process.cwd(), 'vapid-keys.json');
-
-// Get or generate VAPID keys
+// Get or generate VAPID keys from environment variables
 export function getVapidKeys() {
-  try {
-    if (fs.existsSync(VAPID_KEYS_PATH)) {
-      const data = fs.readFileSync(VAPID_KEYS_PATH, 'utf-8');
-      return JSON.parse(data);
-    }
-  } catch (error) {
-    console.error('Error reading VAPID keys:', error);
+  // Check if VAPID keys exist in environment variables
+  const publicKey = process.env.VAPID_PUBLIC_KEY;
+  const privateKey = process.env.VAPID_PRIVATE_KEY;
+
+  if (publicKey && privateKey) {
+    return { publicKey, privateKey };
   }
 
-  // Generate new keys if file doesn't exist
-  const vapidKeys = webpush.generateVAPIDKeys();
-  
-  try {
-    fs.writeFileSync(VAPID_KEYS_PATH, JSON.stringify(vapidKeys, null, 2));
-    console.log('✅ Generated new VAPID keys');
-  } catch (error) {
-    console.error('Error saving VAPID keys:', error);
+  // If not in production, generate temporary keys for development
+  if (process.env.NODE_ENV !== 'production') {
+    console.warn('⚠️ VAPID keys not found in environment variables. Generating temporary keys for development.');
+    const vapidKeys = webpush.generateVAPIDKeys();
+    console.log('📋 Add these to your .env.local file:');
+    console.log(`VAPID_PUBLIC_KEY=${vapidKeys.publicKey}`);
+    console.log(`VAPID_PRIVATE_KEY=${vapidKeys.privateKey}`);
+    return vapidKeys;
   }
 
-  return vapidKeys;
+  // In production, throw error if keys not configured
+  throw new Error('VAPID keys not configured. Please set VAPID_PUBLIC_KEY and VAPID_PRIVATE_KEY environment variables.');
 }
 
 // Configure web-push with VAPID details
@@ -80,4 +75,9 @@ export async function sendPushNotification(
     
     return { success: false, error: error.message };
   }
+}
+
+// Utility to generate new VAPID keys (for setup)
+export function generateNewVapidKeys() {
+  return webpush.generateVAPIDKeys();
 }
