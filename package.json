@@ -36,6 +36,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/web-push": "^3.6.4",
     "anime": "^0.1.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
