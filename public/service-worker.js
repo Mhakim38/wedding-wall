@@ -7,7 +7,6 @@ const RUNTIME_CACHE = "wedding-wall-runtime";
 // Files to cache on install
 const urlsToCache = [
   "/",
-  "/offline.html",
   "/manifest.json",
 ];
 
