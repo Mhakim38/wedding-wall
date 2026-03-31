@@ -6,6 +6,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCamera, faHeart, faLock, faQrcode, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { PushNotificationTest } from '@/components/PushNotificationTest';
 
 export default function AdminPage() {
   const router = useRouter();
@@ -226,6 +227,9 @@ export default function AdminPage() {
           Admin Area • Keep it Secret
         </p>
       </div>
+
+      {/* Push Notification Test Component */}
+      <PushNotificationTest />
     </div>
   );
 }

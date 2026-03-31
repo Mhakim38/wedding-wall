@@ -1,5 +1,5 @@
 // Service Worker for Wedding Wall PWA
-// Handles offline support, caching, and background sync
+// Handles offline support, caching, and push notifications
 
 const CACHE_NAME = "wedding-wall-v1";
 const RUNTIME_CACHE = "wedding-wall-runtime";
@@ -120,4 +120,80 @@ self.addEventListener("fetch", (event) => {
   );
 });
 
-console.log("Service Worker: Loaded");
+// =====================================
+// PUSH NOTIFICATIONS
+// =====================================
+
+// Push: Handle incoming push notifications
+self.addEventListener("push", (event) => {
+  console.log("[Service Worker] Push notification received");
+
+  let notificationData = {
+    title: "Wedding Wall",
+    body: "You have a new notification!",
+    icon: "/favicon-192x192.png",
+    badge: "/favicon-192x192.png",
+  };
+
+  // Parse notification payload
+  if (event.data) {
+    try {
+      notificationData = event.data.json();
+    } catch (e) {
+      console.error("[Service Worker] Failed to parse push data");
+      notificationData.body = event.data.text();
+    }
+  }
+
+  const options = {
+    body: notificationData.body,
+    icon: notificationData.icon || "/favicon-192x192.png",
+    badge: notificationData.badge || "/favicon-192x192.png",
+    vibrate: [200, 100, 200],
+    tag: "wedding-wall-notification",
+    requireInteraction: false,
+    data: {
+      url: notificationData.url || "/",
+      timestamp: Date.now(),
+    },
+  };
+
+  event.waitUntil(
+    self.registration.showNotification(notificationData.title, options)
+  );
+});
+
+// Notification Click: Open app when notification clicked
+self.addEventListener("notificationclick", (event) => {
+  console.log("[Service Worker] Notification clicked");
+  
+  event.notification.close();
+
+  const urlToOpen = event.notification.data?.url || "/";
+
+  event.waitUntil(
+    clients
+      .matchAll({ type: "window", includeUncontrolled: true })
+      .then((clientList) => {
+        // If app is already open, focus it
+        for (let i = 0; i < clientList.length; i++) {
+          const client = clientList[i];
+          if (client.url === urlToOpen && "focus" in client) {
+            return client.focus();
+          }
+        }
+        // If app not open, open it
+        if (clients.openWindow) {
+          return clients.openWindow(urlToOpen);
+        }
+      })
+  );
+});
+
+// Notification Close: Track when notifications are dismissed
+self.addEventListener("notificationclose", (event) => {
+  console.log("[Service Worker] Notification dismissed:", event.notification.tag);
+});
+
+console.log("Service Worker: Loaded with push notification support");
+
