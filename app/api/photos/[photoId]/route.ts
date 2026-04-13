@@ -14,10 +14,10 @@ import { verifyPassword } from '@/lib/password';
  */
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { photoId: string } }
+  { params }: { params: Promise<{ photoId: string }> }
 ) {
   try {
-    const { photoId } = params;
+    const { photoId } = await params;
     const { searchParams } = new URL(request.url);
     
     const guestId = searchParams.get('guestId');
