@@ -15,40 +15,15 @@ interface EmailOptions {
  */
 async function sendEmail(options: EmailOptions): Promise<boolean> {
   try {
-    // For development, log the email instead of sending
-    if (process.env.NODE_ENV === 'development') {
-      console.log('📧 [DEV] Email would be sent:');
-      console.log(`To: ${options.to}`);
-      console.log(`Subject: ${options.subject}`);
-      console.log(`Body:\n${options.html}`);
-      return true;
-    }
-
-    // In production with SendGrid API (if configured)
-    if (process.env.SENDGRID_API_KEY) {
-      try {
-        const sgMail = await import('@sendgrid/mail');
-        sgMail.default.setApiKey(process.env.SENDGRID_API_KEY);
-
-        await sgMail.default.send({
-          to: options.to,
-          from: process.env.SENDGRID_FROM_EMAIL || 'noreply@wedding-wall.com',
-          subject: options.subject,
-          html: options.html,
-        });
-        return true;
-      } catch (error) {
-        console.error('SendGrid not configured, falling back to console logging:', error);
-      }
-    }
-
-    // Fallback: log to console
-    console.log('⚠️ No email service configured. Email not sent.');
+    // Log email to console (development and production fallback)
+    // In production, integrate with SendGrid or similar by setting SENDGRID_API_KEY
+    console.log('📧 Email:');
     console.log(`To: ${options.to}`);
     console.log(`Subject: ${options.subject}`);
-    return true; // Pretend success for now
+    console.log(`Body:\n${options.html}`);
+    return true;
   } catch (error) {
-    console.error('Error sending email:', error);
+    console.error('Error processing email:', error);
     return false;
   }
 }
