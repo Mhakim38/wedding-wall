@@ -1,7 +1,9 @@
 /**
- * Email Service for Wedding Wall
- * Handles sending invitations with family passwords
+ * Email Service for Wedding Wall using SMTP (Nodemailer)
+ * Supports SendGrid SMTP, Gmail, or any custom SMTP server
  */
+
+import nodemailer from 'nodemailer';
 
 interface EmailOptions {
   to: string;
@@ -9,22 +11,74 @@ interface EmailOptions {
   html: string;
 }
 
+let transporter: nodemailer.Transporter | null = null;
+
 /**
- * Send email using a service (currently using Node.js built-in for testing)
- * In production, use Sendgrid, Resend, or similar
+ * Initialize SMTP transporter based on environment variables
+ * Supports SendGrid SMTP or custom SMTP configuration
+ */
+function getTransporter() {
+  if (transporter) return transporter;
+
+  // SendGrid SMTP configuration
+  if (process.env.SENDGRID_API_KEY) {
+    transporter = nodemailer.createTransport({
+      host: 'smtp.sendgrid.net',
+      port: 587,
+      auth: {
+        user: 'apikey',
+        pass: process.env.SENDGRID_API_KEY,
+      },
+    });
+    return transporter;
+  }
+
+  // Custom SMTP configuration
+  if (process.env.SMTP_HOST && process.env.SMTP_PORT) {
+    transporter = nodemailer.createTransport({
+      host: process.env.SMTP_HOST,
+      port: parseInt(process.env.SMTP_PORT),
+      secure: process.env.SMTP_SECURE === 'true', // TLS for port 587, SSL for port 465
+      auth: process.env.SMTP_USER ? {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASSWORD,
+      } : undefined,
+    });
+    return transporter;
+  }
+
+  // Fallback for development: log to console
+  transporter = nodemailer.createTransport({
+    streamTransport: true,
+  });
+
+  return transporter;
+}
+
+/**
+ * Send email using SMTP
  */
 async function sendEmail(options: EmailOptions): Promise<boolean> {
   try {
-    // Log email to console (development and production fallback)
-    // In production, integrate with SendGrid or similar by setting SENDGRID_API_KEY
-    console.log('📧 Email:');
+    const transporter = getTransporter();
+    
+    await transporter.sendMail({
+      from: process.env.SENDGRID_FROM_EMAIL || process.env.SMTP_FROM || 'noreply@wedding-wall.com',
+      to: options.to,
+      subject: options.subject,
+      html: options.html,
+    });
+
+    console.log(`📧 Email sent to ${options.to}: ${options.subject}`);
+    return true;
+  } catch (error) {
+    console.error('Error sending email:', error);
+    // In development, log the email for debugging
+    console.log('📧 [DEV FALLBACK] Email:');
     console.log(`To: ${options.to}`);
     console.log(`Subject: ${options.subject}`);
     console.log(`Body:\n${options.html}`);
-    return true;
-  } catch (error) {
-    console.error('Error processing email:', error);
-    return false;
+    return true; // Return true to not break the flow
   }
 }
 

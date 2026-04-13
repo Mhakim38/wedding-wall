@@ -3,19 +3,29 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCamera, faHeart, faLock, faQrcode, faTimes } from '@fortawesome/free-solid-svg-icons';
+import { faCamera, faHeart, faLock, faQrcode, faTimes, faUserTie, faEnvelope, faKey } from '@fortawesome/free-solid-svg-icons';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { PushNotificationTest } from '@/components/PushNotificationTest';
 
 export default function AdminPage() {
   const router = useRouter();
+  
+  // Gallery creation state
   const [coupleName, setCoupleName] = useState('');
   const [eventDate, setEventDate] = useState('');
   const [adminPassword, setAdminPassword] = useState('');
   const [giftQrFile, setGiftQrFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  // Family password generation state
+  const [weddingCode, setWeddingCode] = useState('');
+  const [familyEmail, setFamilyEmail] = useState('');
+  const [superAdminPassword, setSuperAdminPassword] = useState('');
+  const [familyLoading, setFamilyLoading] = useState(false);
+  const [familyError, setFamilyError] = useState('');
+  const [familySuccess, setFamilySuccess] = useState('');
 
   const handleCreateGallery = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -77,6 +87,52 @@ export default function AdminPage() {
       setError(err instanceof Error ? err.message : 'Failed to create gallery');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleGenerateFamilyPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!weddingCode || !familyEmail || !superAdminPassword) {
+      setFamilyError('Please fill in all fields');
+      return;
+    }
+
+    setFamilyError('');
+    setFamilySuccess('');
+    setFamilyLoading(true);
+
+    try {
+      const response = await fetch('/api/admin/generate-family-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          weddingCode,
+          familyEmail,
+          adminPassword: superAdminPassword,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to generate family password');
+      }
+
+      const data = await response.json();
+      setFamilySuccess(`✅ Family password generated and sent to ${familyEmail}`);
+      
+      // Reset form
+      setWeddingCode('');
+      setFamilyEmail('');
+      setSuperAdminPassword('');
+      
+      // Clear success message after 5 seconds
+      setTimeout(() => setFamilySuccess(''), 5000);
+    } catch (err) {
+      console.error('Error generating family password:', err);
+      setFamilyError(err instanceof Error ? err.message : 'Failed to generate family password');
+    } finally {
+      setFamilyLoading(false);
     }
   };
 
@@ -214,6 +270,85 @@ export default function AdminPage() {
                     {loading ? 'Creating...' : 'Create Gallery'}
                   </Button>
                 </form>
+
+                {/* Divider */}
+                <div className="my-10 border-t border-gray-200 dark:border-white/10"></div>
+
+                {/* Family Password Generation Section */}
+                <div className="mt-10">
+                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2" style={{ fontFamily: 'var(--font-playfair)' }}>Generate Family Password</h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
+                    Create and send family panel access credentials
+                  </p>
+
+                  <form onSubmit={handleGenerateFamilyPassword} className="space-y-6">
+                    {familyError && (
+                      <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 px-4 py-3 rounded-xl text-sm font-medium animate-in fade-in slide-in-from-top-2">
+                        <FontAwesomeIcon icon={faLock} className="mr-2" />
+                        {familyError}
+                      </div>
+                    )}
+
+                    {familySuccess && (
+                      <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 text-green-600 dark:text-green-400 px-4 py-3 rounded-xl text-sm font-medium animate-in fade-in slide-in-from-top-2">
+                        {familySuccess}
+                      </div>
+                    )}
+
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 ml-1">
+                          Wedding Code
+                        </label>
+                        <Input
+                          type="text"
+                          placeholder="e.g., JOHN-JANE-2025"
+                          value={weddingCode}
+                          onChange={(e) => setWeddingCode(e.target.value.toUpperCase())}
+                          disabled={familyLoading}
+                          className="h-14 text-base px-4 rounded-xl border-2 border-gray-200 dark:border-white/10 text-gray-900 dark:text-white bg-white dark:bg-black/50 focus:border-purple-500 focus:ring-0 placeholder:text-gray-400 dark:placeholder:text-gray-500 font-mono tracking-wide"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 ml-1">
+                          Family Member Email
+                        </label>
+                        <Input
+                          type="email"
+                          placeholder="family@example.com"
+                          value={familyEmail}
+                          onChange={(e) => setFamilyEmail(e.target.value)}
+                          disabled={familyLoading}
+                          className="h-14 text-base px-4 rounded-xl border-2 border-gray-200 dark:border-white/10 text-gray-900 dark:text-white bg-white dark:bg-black/50 focus:border-purple-500 focus:ring-0 placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 ml-1">
+                          Super Admin Password
+                        </label>
+                        <Input
+                          type="password"
+                          placeholder="Enter your admin password"
+                          value={superAdminPassword}
+                          onChange={(e) => setSuperAdminPassword(e.target.value)}
+                          disabled={familyLoading}
+                          className="h-14 text-base px-4 rounded-xl border-2 border-gray-200 dark:border-white/10 text-gray-900 dark:text-white bg-white dark:bg-black/50 focus:border-purple-500 focus:ring-0 placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                        />
+                      </div>
+                    </div>
+
+                    <Button 
+                      type="submit"
+                      className="w-full h-14 text-base font-semibold rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white transition-all duration-300"
+                      disabled={familyLoading}
+                    >
+                      <FontAwesomeIcon icon={faKey} className="mr-3 w-4 h-4" />
+                      {familyLoading ? 'Generating...' : 'Generate & Send Password'}
+                    </Button>
+                  </form>
+                </div>
               </div>
             </div>
           </div>
