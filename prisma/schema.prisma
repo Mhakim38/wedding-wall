@@ -20,9 +20,13 @@ model WeddingSession {
   createdAt DateTime @default(now())
   expiresAt DateTime // When the session closes
 
-  // New Fields
+  // Gift QR Fields
   giftQrCodeUrl String?
   giftQrCodeKey String?
+
+  // Family Panel Fields
+  familyPassword String?     // Hashed family password
+  familyPasswordKey String?  // Salt key for hashing
 
   // Relations
   guests  Guest[]
@@ -34,12 +38,14 @@ model WeddingSession {
 
 // Wedding guest (photo uploader)
 model Guest {
-  id           String   @id @default(cuid())
-  sessionId    String
-  name         String
-  email        String?
-  createdAt    DateTime @default(now())
-  lastActivity DateTime @default(now())
+  id               String   @id @default(cuid())
+  sessionId        String
+  name             String
+  email            String?
+  role             String   @default("guest")  // "guest" | "family"
+  photoUploadLimit Int      @default(1)         // 1 for guest, 10 for family
+  createdAt        DateTime @default(now())
+  lastActivity     DateTime @default(now())
 
   // Relations
   session WeddingSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
@@ -47,6 +53,7 @@ model Guest {
 
   @@unique([sessionId, email])
   @@index([sessionId])
+  @@index([role])
 }
 
 // Wedding photo (uploaded image)

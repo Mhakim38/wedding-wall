@@ -1,4 +1,4 @@
-import { PutObjectCommand } from "@aws-sdk/client-s3";
+import { PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
 import s3Client from "./s3";
 
 const BUCKET_NAME = process.env.AWS_S3_BUCKET || "wedding-wall";
@@ -46,3 +46,19 @@ export async function uploadToS3(
     throw new Error(`Failed to upload file to S3: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 }
+
+export async function deleteFromS3(s3Key: string): Promise<void> {
+  try {
+    const deleteCommand = new DeleteObjectCommand({
+      Bucket: BUCKET_NAME,
+      Key: s3Key,
+    });
+
+    await s3Client.send(deleteCommand);
+    console.log(`Deleted from S3: ${s3Key}`);
+  } catch (error) {
+    console.error("Error deleting from S3:", error);
+    throw new Error(`Failed to delete file from S3: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
+}
+

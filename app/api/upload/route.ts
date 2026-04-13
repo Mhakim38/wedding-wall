@@ -9,6 +9,7 @@ export async function POST(request: NextRequest) {
     const guestName = formData.get('guestName') as string;
     const file = formData.get('file') as File;
     const description = formData.get('description') as string | null;
+    const role = (formData.get('role') as string) || 'guest'; // 'guest' or 'family'
 
     if (!sessionId || !guestName || !file) {
       return NextResponse.json(
@@ -36,7 +37,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Find or create guest
+    // Determine upload limit based on role
+    const uploadLimit = role === 'family' ? 10 : 1;
+
+    // Find or create guest with role
     let guest = await prisma.guest.findFirst({
       where: {
         sessionId,
@@ -49,8 +53,28 @@ export async function POST(request: NextRequest) {
         data: {
           sessionId,
           name: guestName,
+          role,
+          photoUploadLimit: uploadLimit,
         },
       });
+    }
+
+    // Check upload limit
+    const photoCount = await prisma.photo.count({
+      where: {
+        guestId: guest.id,
+      },
+    });
+
+    if (photoCount >= uploadLimit) {
+      return NextResponse.json(
+        {
+          error: `Upload limit reached. You can upload ${uploadLimit} photo${uploadLimit > 1 ? 's' : ''}`,
+          currentCount: photoCount,
+          limit: uploadLimit,
+        },
+        { status: 429 }
+      );
     }
 
     // Convert file to buffer
@@ -78,7 +102,15 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    return NextResponse.json(photo, { status: 201 });
+    return NextResponse.json(
+      {
+        ...photo,
+        photoCount: photoCount + 1,
+        limit: uploadLimit,
+        role,
+      },
+      { status: 201 }
+    );
   } catch (error) {
     console.error('Error uploading photo:', error);
     return NextResponse.json(
