@@ -3,7 +3,7 @@
 import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faMoon, faSun, faCamera, faHome, faCheck, faCopy, faQrcode, faTimes, faGift, faEllipsis, faTrash, faLogOut } from '@fortawesome/free-solid-svg-icons';
+import { faMoon, faSun, faCamera, faHome, faCheck, faCopy, faQrcode, faTimes, faGift, faEllipsis, faTrash, faRightFromBracket } from '@fortawesome/free-solid-svg-icons';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import QRCode from 'qrcode';
@@ -227,7 +227,7 @@ function FamilyGalleryContent() {
               className="p-2 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors text-red-600 dark:text-red-400"
               title="Logout"
             >
-              <FontAwesomeIcon icon={faLogOut} className="w-5 h-5" />
+              <FontAwesomeIcon icon={faRightFromBracket} className="w-5 h-5" />
             </button>
           </div>
         </div>

@@ -26,16 +26,20 @@ async function sendEmail(options: EmailOptions): Promise<boolean> {
 
     // In production with SendGrid API (if configured)
     if (process.env.SENDGRID_API_KEY) {
-      const sgMail = require('@sendgrid/mail');
-      sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+      try {
+        const sgMail = await import('@sendgrid/mail');
+        sgMail.default.setApiKey(process.env.SENDGRID_API_KEY);
 
-      await sgMail.send({
-        to: options.to,
-        from: process.env.SENDGRID_FROM_EMAIL || 'noreply@wedding-wall.com',
-        subject: options.subject,
-        html: options.html,
-      });
-      return true;
+        await sgMail.default.send({
+          to: options.to,
+          from: process.env.SENDGRID_FROM_EMAIL || 'noreply@wedding-wall.com',
+          subject: options.subject,
+          html: options.html,
+        });
+        return true;
+      } catch (error) {
+        console.error('SendGrid not configured, falling back to console logging:', error);
+      }
     }
 
     // Fallback: log to console
