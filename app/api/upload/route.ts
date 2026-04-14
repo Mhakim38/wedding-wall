@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Determine upload limit based on role
-    const uploadLimit = role === 'family' ? 10 : 1;
+    const uploadLimit = role === 'family' ? 10 : 2;
 
     // Find or create guest with role
     let guest = await prisma.guest.findFirst({

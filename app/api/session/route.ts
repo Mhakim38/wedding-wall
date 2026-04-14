@@ -3,7 +3,7 @@ import { prisma } from '@/lib/prisma';
 
 export async function POST(request: NextRequest) {
   try {
-    const { eventName, eventDate, adminPassword, giftQrCodeUrl, giftQrCodeKey } = await request.json();
+    const { eventName, eventDate, adminPassword, giftQrCodeUrl, giftQrCodeKey, subscriptionPackage } = await request.json();
 
     // Security Check: Verify Admin Password
     if (!process.env.ADMIN_PASSWORD) {
@@ -28,6 +28,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Validate subscription package
+    const validPackages = ['7days', '14days', '30days'];
+    const pkg = subscriptionPackage && validPackages.includes(subscriptionPackage) ? subscriptionPackage : '7days';
+    
+    // Calculate subscription end date based on package
+    const eventDateTime = new Date(eventDate);
+    const packageDays = parseInt(pkg.match(/\d+/)?.[0] || '7');
+    const subscriptionEndDate = new Date(eventDateTime.getTime() + packageDays * 24 * 60 * 60 * 1000);
+
     // Generate unique 8-character code
     const code = Math.random().toString(36).substring(2, 10).toUpperCase();
 
@@ -37,8 +46,10 @@ export async function POST(request: NextRequest) {
         eventName,
         giftQrCodeUrl,
         giftQrCodeKey,
-        eventDate: new Date(eventDate),
+        eventDate: eventDateTime,
         expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
+        subscriptionPackage: pkg,
+        subscriptionEndDate,
       },
     });
 

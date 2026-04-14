@@ -20,6 +20,10 @@ model WeddingSession {
   createdAt DateTime @default(now())
   expiresAt DateTime // When the session closes
 
+  // Subscription Package
+  subscriptionPackage String   @default("7days") // "7days" | "14days" | "30days"
+  subscriptionEndDate DateTime // Auto-calculated: eventDate + package duration
+
   // Gift QR Fields
   giftQrCodeUrl String?
   giftQrCodeKey String?
@@ -43,7 +47,8 @@ model Guest {
   name             String
   email            String?
   role             String   @default("guest")  // "guest" | "family"
-  photoUploadLimit Int      @default(1)         // 1 for guest, 10 for family
+  photoUploadLimit Int      @default(2)         // 2 for guest, 10 for family
+  agreedToTnC      Boolean  @default(false)    // TnC & Privacy Policy agreement
   createdAt        DateTime @default(now())
   lastActivity     DateTime @default(now())
 

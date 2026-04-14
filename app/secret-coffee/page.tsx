@@ -16,6 +16,7 @@ export default function AdminPage() {
   const [eventDate, setEventDate] = useState('');
   const [adminPassword, setAdminPassword] = useState('');
   const [giftQrFile, setGiftQrFile] = useState<File | null>(null);
+  const [subscriptionPackage, setSubscriptionPackage] = useState('7days');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -72,6 +73,7 @@ export default function AdminPage() {
           adminPassword: adminPassword,
           giftQrCodeUrl,
           giftQrCodeKey,
+          subscriptionPackage,
         }),
       });
 
@@ -241,6 +243,25 @@ export default function AdminPage() {
                       </div>
                       <p className="text-xs text-gray-500 dark:text-gray-400 ml-1">
                         Guests can scan this to send money gifts (Angpao).
+                      </p>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 ml-1">
+                        Subscription Package
+                      </label>
+                      <select
+                        value={subscriptionPackage}
+                        onChange={(e) => setSubscriptionPackage(e.target.value)}
+                        disabled={loading}
+                        className="h-14 w-full px-4 rounded-xl border-2 border-gray-200 dark:border-white/10 text-gray-900 dark:text-white bg-white dark:bg-black/50 focus:border-orange-500 focus:ring-0 font-medium"
+                      >
+                        <option value="7days">7 Days (Recommended)</option>
+                        <option value="14days">14 Days</option>
+                        <option value="30days">30 Days (Premium)</option>
+                      </select>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 ml-1">
+                        Gallery will be accessible for this duration after the event date
                       </p>
                     </div>
 
