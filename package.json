@@ -46,6 +46,7 @@
     "clsx": "^2.1.1",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
+    "pg": "^8.20.0",
     "prisma": "^6.19.2",
     "shadcn-ui": "^0.9.5",
     "supabase": "^2.77.1",
