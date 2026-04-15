@@ -4,7 +4,8 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHeart } from '@fortawesome/free-solid-svg-icons';
+import { faHeart, faCheck } from '@fortawesome/free-solid-svg-icons';
+import Link from 'next/link';
 
 interface WelcomeNameModalProps {
   onNameSubmit: (name: string) => void;
@@ -12,6 +13,7 @@ interface WelcomeNameModalProps {
 
 export default function WelcomeNameModal({ onNameSubmit }: WelcomeNameModalProps) {
   const [name, setName] = useState('');
+  const [agreedToTnC, setAgreedToTnC] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
@@ -25,8 +27,9 @@ export default function WelcomeNameModal({ onNameSubmit }: WelcomeNameModalProps
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (name.trim()) {
+    if (name.trim() && agreedToTnC) {
       localStorage.setItem('guestName', name.trim());
+      localStorage.setItem('agreedToTnC', 'true');
       setIsVisible(false);
       setTimeout(() => onNameSubmit(name.trim()), 300);
     }
@@ -82,9 +85,30 @@ export default function WelcomeNameModal({ onNameSubmit }: WelcomeNameModalProps
               />
             </div>
 
+            {/* TnC Checkbox */}
+            <div className="flex items-start gap-3 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700">
+              <input
+                type="checkbox"
+                id="tnc"
+                checked={agreedToTnC}
+                onChange={(e) => setAgreedToTnC(e.target.checked)}
+                className="mt-1 w-5 h-5 accent-orange-500 cursor-pointer"
+              />
+              <label htmlFor="tnc" className="text-sm text-gray-700 dark:text-gray-300 cursor-pointer flex-1">
+                I agree to the{' '}
+                <Link href="/tnc" target="_blank" className="text-orange-600 dark:text-orange-400 hover:underline font-semibold">
+                  Terms & Conditions
+                </Link>
+                {' '}and{' '}
+                <Link href="/privacy-policy" target="_blank" className="text-orange-600 dark:text-orange-400 hover:underline font-semibold">
+                  Privacy Policy
+                </Link>
+              </label>
+            </div>
+
             <Button
               type="submit"
-              disabled={!name.trim()}
+              disabled={!name.trim() || !agreedToTnC}
               className="w-full h-14 text-base font-semibold rounded-full bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl hover:scale-[1.02]"
             >
               Continue to Gallery ✨

@@ -194,11 +194,27 @@ function HomeContent() {
         </div>
       </div>
 
+
       {/* Footer */}
-      <div className="border-t border-gray-200 dark:border-white/10 py-8 text-center text-gray-600 dark:text-gray-400 text-sm">
-        <p className="flex items-center justify-center gap-2">
+      <div className="border-t border-gray-200 dark:border-white/10 py-12 px-4 text-center text-gray-600 dark:text-gray-400">
+        <p className="flex items-center justify-center gap-2 mb-6">
           <FontAwesomeIcon icon={faHeart} className="w-4 h-4 text-red-500" />
           Made with love for weddings • PWA ready for offline use
+        </p>
+        
+        {/* Legal Links */}
+        <div className="flex flex-wrap justify-center gap-6 text-sm mt-6">
+          <a href="/tnc" className="hover:text-orange-600 dark:hover:text-orange-400 transition-colors font-medium">
+            Terms & Conditions
+          </a>
+          <span className="text-gray-300 dark:text-gray-600">•</span>
+          <a href="/privacy-policy" className="hover:text-orange-600 dark:hover:text-orange-400 transition-colors font-medium">
+            Privacy Policy
+          </a>
+        </div>
+        
+        <p className="text-xs mt-4 text-gray-500 dark:text-gray-500">
+          © 2026 Wedding Wall. All rights reserved.
         </p>
       </div>
     </div>

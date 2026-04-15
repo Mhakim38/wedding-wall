@@ -120,6 +120,16 @@ function GalleryContent() {
         const sessionRes = await fetch(`/api/session?sessionId=${sessionId}`);
         if (sessionRes.ok) {
           const sessionData = await sessionRes.json();
+          
+          // Check if gallery is still active (subscription not expired)
+          const subscriptionEndDate = new Date(sessionData.subscriptionEndDate);
+          if (new Date() > subscriptionEndDate) {
+            setError('This gallery has expired. Thank you for celebrating with us!');
+            setPhotos([]);
+            setLoading(false);
+            return;
+          }
+          
           setSessionCode(sessionData.code);
           setEventName(sessionData.eventName);
           if (sessionData.giftQrCodeUrl) {
