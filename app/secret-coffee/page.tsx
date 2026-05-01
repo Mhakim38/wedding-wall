@@ -126,12 +126,23 @@ export default function AdminPage() {
       const data = await response.json();
       setGeneratedPassword(data.generatedPassword);
       setShowCredentials(true);
-      setFamilySuccess(`✅ Family password generated!`);
+      setFamilySuccess(`✅ Family password generated! Opening WhatsApp...`);
       
-      // Reset form
-      setWeddingCode('');
-      setFamilyPhone('');
-      setSuperAdminPassword('');
+      // Auto-open WhatsApp immediately after password generation
+      setTimeout(() => {
+        openWhatsAppWithMessage(
+          data.phoneNumber,
+          weddingCode.toUpperCase(),
+          data.generatedPassword
+        );
+      }, 500);
+      
+      // Reset form after a short delay
+      setTimeout(() => {
+        setWeddingCode('');
+        setFamilyPhone('');
+        setSuperAdminPassword('');
+      }, 1000);
     } catch (err) {
       console.error('Error generating family password:', err);
       setFamilyError(err instanceof Error ? err.message : 'Failed to generate family password');
@@ -145,6 +156,16 @@ export default function AdminPage() {
     navigator.clipboard.writeText(text);
     // Optional: Show toast notification
     alert('Copied to clipboard!');
+  };
+
+  const openWhatsAppWithMessage = (phoneNumber: string, code: string, password: string) => {
+    const cleanPhone = phoneNumber.replace(/[^\d+]/g, '');
+    
+    const message = `🎊 Wedding Family Panel Access\n\n📱 Access Link: https://wedding-wall.com/family-panel\nCode: ${code}\nPassword: ${password}\n\nHow to Use:\n1. Go to family panel\n2. Enter the Code\n3. Enter the Password\n4. View & share family photos!\n\nQuestions? Contact the couple 💕`;
+    
+    const encodedMessage = encodeURIComponent(message);
+    const whatsappLink = `https://wa.me/${cleanPhone}?text=${encodedMessage}`;
+    window.open(whatsappLink, '_blank');
   };
 
   const handleSendViaWhatsApp = () => {
