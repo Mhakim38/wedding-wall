@@ -161,7 +161,7 @@ export default function AdminPage() {
   const openWhatsAppWithMessage = (phoneNumber: string, code: string, password: string) => {
     const cleanPhone = phoneNumber.replace(/[^\d+]/g, '');
     
-    const message = `🎊 Wedding Family Panel Access\n\n📱 Access Link: https://wedding-wall.com/family-panel\nCode: ${code}\nPassword: ${password}\n\nHow to Use:\n1. Go to family panel\n2. Enter the Code\n3. Enter the Password\n4. View & share family photos!\n\nQuestions? Contact the couple 💕`;
+    const message = `🎊 Wedding Family Panel Access\n\n📱 Access Link: https://wedding-wall.com/family-panel\nCode: ${code}\nPassword: ${password}\n\nHow to Use:\n1. Go to the link\n2. Enter the Code\n3. Enter the Password\n4. View & share family photos!\n\nQuestions? Contact +601117857466 (Hakim) 💕`;
     
     const encodedMessage = encodeURIComponent(message);
     const whatsappLink = `https://wa.me/${cleanPhone}?text=${encodedMessage}`;
@@ -414,14 +414,17 @@ Questions? Contact the couple 💕`;
                         <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 ml-1">
                           Family Member Phone Number
                         </label>
-                        <Input
-                          type="tel"
-                          placeholder="+60123456789"
-                          value={familyPhone}
-                          onChange={(e) => setFamilyPhone(e.target.value)}
-                          disabled={familyLoading}
-                          className="h-14 text-base px-4 rounded-xl border-2 border-gray-200 dark:border-white/10 text-gray-900 dark:text-white bg-white dark:bg-black/50 focus:border-purple-500 focus:ring-0 placeholder:text-gray-400 dark:placeholder:text-gray-500"
-                        />
+                        <div className="relative flex items-center">
+                          <span className="absolute left-4 text-gray-600 dark:text-gray-400 font-medium">+60</span>
+                          <Input
+                            type="tel"
+                            placeholder="123456789"
+                            value={familyPhone.replace('+60', '')}
+                            onChange={(e) => setFamilyPhone(`+60${e.target.value.replace(/\D/g, '')}`)}
+                            disabled={familyLoading}
+                            className="h-14 text-base px-4 pl-12 rounded-xl border-2 border-gray-200 dark:border-white/10 text-gray-900 dark:text-white bg-white dark:bg-black/50 focus:border-purple-500 focus:ring-0 placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                          />
+                        </div>
                       </div>
 
                       <div className="space-y-2">
