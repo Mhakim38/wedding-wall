@@ -22,11 +22,13 @@ export default function AdminPage() {
 
   // Family password generation state
   const [weddingCode, setWeddingCode] = useState('');
-  const [familyEmail, setFamilyEmail] = useState('');
+  const [familyPhone, setFamilyPhone] = useState('');
   const [superAdminPassword, setSuperAdminPassword] = useState('');
   const [familyLoading, setFamilyLoading] = useState(false);
   const [familyError, setFamilyError] = useState('');
   const [familySuccess, setFamilySuccess] = useState('');
+  const [generatedPassword, setGeneratedPassword] = useState('');
+  const [showCredentials, setShowCredentials] = useState(false);
 
   const handleCreateGallery = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -95,13 +97,14 @@ export default function AdminPage() {
   const handleGenerateFamilyPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!weddingCode || !familyEmail || !superAdminPassword) {
+    if (!weddingCode || !familyPhone || !superAdminPassword) {
       setFamilyError('Please fill in all fields');
       return;
     }
 
     setFamilyError('');
     setFamilySuccess('');
+    setGeneratedPassword('');
     setFamilyLoading(true);
 
     try {
@@ -109,8 +112,8 @@ export default function AdminPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          weddingCode,
-          familyEmail,
+          weddingCode: weddingCode.toUpperCase(),
+          phoneNumber: familyPhone,
           adminPassword: superAdminPassword,
         }),
       });
@@ -121,21 +124,76 @@ export default function AdminPage() {
       }
 
       const data = await response.json();
-      setFamilySuccess(`✅ Family password generated and sent to ${familyEmail}`);
+      setGeneratedPassword(data.generatedPassword);
+      setShowCredentials(true);
+      setFamilySuccess(`✅ Family password generated!`);
       
       // Reset form
       setWeddingCode('');
-      setFamilyEmail('');
+      setFamilyPhone('');
       setSuperAdminPassword('');
-      
-      // Clear success message after 5 seconds
-      setTimeout(() => setFamilySuccess(''), 5000);
     } catch (err) {
       console.error('Error generating family password:', err);
       setFamilyError(err instanceof Error ? err.message : 'Failed to generate family password');
+      setShowCredentials(false);
     } finally {
       setFamilyLoading(false);
     }
+  };
+
+  const handleCopyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+    // Optional: Show toast notification
+    alert('Copied to clipboard!');
+  };
+
+  const handleSendViaWhatsApp = () => {
+    if (!weddingCode || !generatedPassword || !familyPhone) {
+      setFamilyError('Missing credentials');
+      return;
+    }
+
+    // Import the WhatsApp utility
+    const generateWhatsAppLink = (phoneNumber: string, message: string): string => {
+      const cleanPhone = phoneNumber.replace(/[^\d+]/g, '');
+      const encodedMessage = encodeURIComponent(message);
+      return `https://wa.me/${cleanPhone}?text=${encodedMessage}`;
+    };
+
+    const generateWhatsAppMessage = (code: string, password: string, coupleName: string, eventDate: Date): string => {
+      const eventDateStr = new Date(eventDate).toLocaleDateString('en-MY', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+      });
+
+      const appUrl = 'https://wedding-wall.com/family-panel';
+
+      return `🎊 Wedding Family Panel Access
+
+Couple: ${coupleName}
+Event: ${eventDateStr}
+
+📱 Access Link: ${appUrl}
+Code: ${code}
+Password: ${password}
+
+Access Valid: From Event Date for 7-30 Days
+
+How to Use:
+1. Go to ${appUrl}
+2. Enter the Code above
+3. Enter the Password
+4. View & share family photos!
+
+Questions? Contact the couple 💕`;
+    };
+
+    // This is a simplified version - you'll need to pass event name and date
+    const message = `🎊 Wedding Family Panel Access\n\n📱 Access Link: https://wedding-wall.com/family-panel\nCode: ${weddingCode}\nPassword: ${generatedPassword}\n\nHow to Use:\n1. Go to family panel\n2. Enter the Code\n3. Enter the Password\n4. View & share family photos!\n\nQuestions? Contact the couple 💕`;
+
+    const whatsappLink = generateWhatsAppLink(familyPhone, message);
+    window.open(whatsappLink, '_blank');
   };
 
   return (
@@ -333,13 +391,13 @@ export default function AdminPage() {
 
                       <div className="space-y-2">
                         <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 ml-1">
-                          Family Member Email
+                          Family Member Phone Number
                         </label>
                         <Input
-                          type="email"
-                          placeholder="family@example.com"
-                          value={familyEmail}
-                          onChange={(e) => setFamilyEmail(e.target.value)}
+                          type="tel"
+                          placeholder="+60123456789"
+                          value={familyPhone}
+                          onChange={(e) => setFamilyPhone(e.target.value)}
                           disabled={familyLoading}
                           className="h-14 text-base px-4 rounded-xl border-2 border-gray-200 dark:border-white/10 text-gray-900 dark:text-white bg-white dark:bg-black/50 focus:border-purple-500 focus:ring-0 placeholder:text-gray-400 dark:placeholder:text-gray-500"
                         />
@@ -366,7 +424,7 @@ export default function AdminPage() {
                       disabled={familyLoading}
                     >
                       <FontAwesomeIcon icon={faKey} className="mr-3 w-4 h-4" />
-                      {familyLoading ? 'Generating...' : 'Generate & Send Password'}
+                      {familyLoading ? 'Generating...' : 'Generate Family Password'}
                     </Button>
                   </form>
                 </div>
