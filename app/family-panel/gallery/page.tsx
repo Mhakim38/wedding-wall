@@ -162,7 +162,7 @@ function FamilyGalleryContent() {
       const response = await fetch(`/api/photos?sessionId=${sessionId}`);
       if (response.ok) {
         const data = await response.json();
-        setPhotos(data);
+        setPhotos(data.photos); // Extract photos array from response
         setError('');
       } else {
         throw new Error('Failed to load photos');
