@@ -65,6 +65,12 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    // Calculate access dates
+    // From: Day before event (eventDate - 1 day)
+    // To: Subscription end date (already calculated as eventDate + package duration)
+    const validFromDate = new Date(updatedSession.eventDate);
+    validFromDate.setDate(validFromDate.getDate() - 1);
+
     return NextResponse.json(
       {
         success: true,
@@ -73,7 +79,7 @@ export async function POST(request: NextRequest) {
         code: updatedSession.code,
         generatedPassword: passwordToUse,
         phoneNumber: phoneNumber,
-        validFromDate: updatedSession.eventDate,
+        validFromDate: validFromDate,
         validToDate: updatedSession.subscriptionEndDate,
         familyPasswordSet: true,
         message: 'Family password generated successfully. Share via WhatsApp manually.',
