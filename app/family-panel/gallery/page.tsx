@@ -3,11 +3,11 @@
 import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCamera, faQrcode, faCopy, faTimes, faTrash, faRightFromBracket, faMoon, faSun } from '@fortawesome/free-solid-svg-icons';
+import { faCamera, faCopy, faQrcode, faTimes, faTrash, faRightFromBracket } from '@fortawesome/free-solid-svg-icons';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import FamilyMemberNameModal from '@/components/FamilyMemberNameModal';
-import { useTheme } from '@/hooks/useTheme';
+import Navbar from '@/components/Navbar';
 import QRCode from 'qrcode';
 
 interface Photo {
@@ -154,7 +154,6 @@ function FamilyGalleryContent() {
       setEventName(storedEventName);
     }
 
-    // Check if family member is already logged in for this session
     const currentMember = sessionStorage.getItem(`current_family_member_${sessionId}`);
     if (currentMember) {
       setCurrentFamilyMember(currentMember);
@@ -239,9 +238,12 @@ function FamilyGalleryContent() {
       )}
 
       <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-pink-50 dark:from-gray-900 dark:via-black dark:to-gray-900 transition-colors duration-300">
-        {/* Main Content - Same structure as guest gallery */}
+        {/* Navbar - Inside Page */}
+        <Navbar />
+
+        {/* Main Content */}
         <main className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-8 py-12">
-          {/* FAB Upload Button - Replaces Top Button */}
+          {/* FAB Upload Button */}
           <div className="fixed bottom-6 right-6 z-50">
             <Link href={`/family-panel/upload?sessionId=${sessionId}`}>
               <Button className="h-14 w-14 rounded-full p-0 bg-gradient-to-r from-orange-500 to-pink-500 text-white shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 md:w-auto md:px-6">
@@ -276,7 +278,7 @@ function FamilyGalleryContent() {
             </div>
           ) : (
             <>
-              {/* Header Info: Code & Count */}
+              {/* Header Info */}
               <div className="mb-8 flex flex-col items-center gap-4 text-center">
 
                 {/* Dynamic Wedding Header */}
@@ -286,34 +288,61 @@ function FamilyGalleryContent() {
                   </h1>
                 )}
 
-                {/* Family Member Badge */}
+                {/* Family Member Badge - Glass Container */}
                 {currentFamilyMember && (
-                  <div className="inline-flex items-center gap-3">
-                    <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border border-purple-200 dark:border-purple-500/30 rounded-2xl px-4 py-2 shadow-warm-md">
-                      <p className="text-xs uppercase tracking-widest text-gray-500 dark:text-gray-400 font-bold">Current User</p>
-                      <p className="text-lg font-semibold text-purple-600 dark:text-purple-400">{currentFamilyMember}</p>
+                  <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border border-orange-200 dark:border-orange-500/30 rounded-2xl px-6 py-4 shadow-warm-md w-full max-w-sm flex flex-col items-center justify-center">
+                    <p className="text-xs uppercase tracking-widest text-gray-500 dark:text-gray-400 font-bold mb-1">Current User</p>
+                    <p className="text-xl font-semibold text-purple-600 dark:text-purple-400 mb-3">{currentFamilyMember}</p>
+                    
+                    <div className="flex gap-2">
+                      <button
+                        onClick={handleSwitchUser}
+                        className="px-3 py-1 rounded-full text-xs font-medium text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-900/30 hover:bg-purple-100 dark:hover:bg-purple-900/50 transition-colors"
+                      >
+                        Switch User
+                      </button>
+
+                      <button
+                        onClick={handleLogout}
+                        className="p-2 rounded-full text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/30 hover:bg-red-100 dark:hover:bg-red-900/50 transition-colors"
+                        title="Logout"
+                      >
+                        <FontAwesomeIcon icon={faRightFromBracket} className="w-4 h-4" />
+                      </button>
                     </div>
-
-                    {/* Switch User Button */}
-                    <button
-                      onClick={handleSwitchUser}
-                      className="px-4 py-2 rounded-full text-sm font-medium text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-900/30 hover:bg-purple-100 dark:hover:bg-purple-900/50 transition-colors"
-                    >
-                      Switch User
-                    </button>
-
-                    {/* Logout Button */}
-                    <button
-                      onClick={handleLogout}
-                      className="p-2 rounded-full text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/30 hover:bg-red-100 dark:hover:bg-red-900/50 transition-colors"
-                      title="Logout"
-                    >
-                      <FontAwesomeIcon icon={faRightFromBracket} className="w-5 h-5" />
-                    </button>
                   </div>
                 )}
-                
-                {/* Photo Count Pill (Smaller) */}
+
+                {/* QR & Share Buttons - Glass Container */}
+                <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border border-orange-200 dark:border-orange-500/30 rounded-2xl px-6 py-4 shadow-warm-md w-full max-w-sm flex flex-col items-center justify-center">
+                  <div className="flex items-center justify-center gap-6">
+                    {/* QR Code Icon Button */}
+                    <button
+                      onClick={handleGenerateQR}
+                      className="flex flex-col items-center gap-2 group"
+                      title="Generate QR Code"
+                    >
+                      <div className="p-3 rounded-full bg-gray-50 dark:bg-gray-700/50 group-hover:bg-orange-50 dark:group-hover:bg-orange-900/20 text-gray-600 dark:text-gray-300 group-hover:text-orange-500 transition-colors">
+                        <FontAwesomeIcon icon={faQrcode} className="w-5 h-5" />
+                      </div>
+                      <span className="text-[10px] font-medium text-gray-500 uppercase tracking-wider">QR Code</span>
+                    </button>
+
+                    {/* Copy Link Icon Button */}
+                    <button
+                      onClick={() => copyToClipboard(`${window.location.origin}/family-panel/gallery?sessionId=${sessionId}`, 'link')}
+                      className="flex flex-col items-center gap-2 group"
+                      title="Copy Gallery Link"
+                    >
+                      <div className="p-3 rounded-full bg-gray-50 dark:bg-gray-700/50 group-hover:bg-blue-50 dark:group-hover:bg-blue-900/20 text-gray-600 dark:text-gray-300 group-hover:text-blue-500 transition-colors">
+                        <FontAwesomeIcon icon={faCopy} className="w-5 h-5" />
+                      </div>
+                      <span className="text-[10px] font-medium text-gray-500 uppercase tracking-wider">{copiedButton === 'link' ? 'Copied!' : 'Share'}</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Photo Count Pill */}
                 <div className="inline-flex items-center gap-2 rounded-full bg-white/60 dark:bg-gray-900/60 backdrop-blur-sm border border-white/50 dark:border-gray-700/50 px-3 py-1.5 shadow-sm">
                   <div className="w-6 h-6 rounded-full bg-gradient-to-r from-orange-500 to-pink-500 flex items-center justify-center shadow-sm shrink-0">
                     <FontAwesomeIcon icon={faCamera} className="w-2.5 h-2.5 text-white pt-0" />
@@ -323,54 +352,7 @@ function FamilyGalleryContent() {
                     <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">Moments captured</span>
                   </div>
                 </div>
-
-                {/* Action Icon Buttons (same as guest gallery) */}
-                <div className="flex items-center justify-center gap-8 mt-6">
-                  {/* QR Code Icon Button */}
-                  <button
-                    onClick={handleGenerateQR}
-                    className="flex flex-col items-center gap-2 group"
-                    title="Show QR Code"
-                  >
-                    <div className="p-3 rounded-full bg-gray-50 dark:bg-gray-700/50 group-hover:bg-orange-50 dark:group-hover:bg-orange-900/20 text-gray-600 dark:text-gray-300 group-hover:text-orange-500 transition-colors">
-                      <FontAwesomeIcon icon={faQrcode} className="w-5 h-5" />
-                    </div>
-                    <span className="text-[10px] font-medium text-gray-500 uppercase tracking-wider">QR Code</span>
-                  </button>
-
-                  {/* Copy Link Icon Button */}
-                  <button
-                    onClick={() => copyToClipboard(`${window.location.origin}/family-panel/gallery?sessionId=${sessionId}`, 'link')}
-                    className="flex flex-col items-center gap-2 group"
-                    title="Copy Gallery Link"
-                  >
-                    <div className="p-3 rounded-full bg-gray-50 dark:bg-gray-700/50 group-hover:bg-blue-50 dark:group-hover:bg-blue-900/20 text-gray-600 dark:text-gray-300 group-hover:text-blue-500 transition-colors">
-                      <FontAwesomeIcon icon={faCopy} className="w-5 h-5" />
-                    </div>
-                    <span className="text-[10px] font-medium text-gray-500 uppercase tracking-wider">{copiedButton === 'link' ? 'Copied!' : 'Share'}</span>
-                  </button>
-                </div>
               </div>
-
-              {/* QR Code Modal */}
-              {showQrModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-                  <div className="bg-white dark:bg-gray-900 rounded-3xl p-8 max-w-sm w-full">
-                    <div className="flex justify-between items-center mb-4">
-                      <h3 className="text-xl font-bold text-gray-900 dark:text-white">Share Gallery</h3>
-                      <button onClick={() => setShowQrModal(false)} className="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
-                        <FontAwesomeIcon icon={faTimes} className="w-5 h-5" />
-                      </button>
-                    </div>
-                    {qrCodeUrl && (
-                      <img src={qrCodeUrl} alt="QR Code" className="w-full rounded-lg" />
-                    )}
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-4 text-center">
-                      Scan to view this gallery
-                    </p>
-                  </div>
-                </div>
-              )}
 
               {/* Tailwind Bento Grid Gallery */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 auto-rows-[250px] grid-flow-dense pb-8">
@@ -392,6 +374,26 @@ function FamilyGalleryContent() {
             </>
           )}
         </main>
+
+        {/* QR Code Modal */}
+        {showQrModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+            <div className="bg-white dark:bg-gray-900 rounded-3xl p-8 max-w-sm w-full">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white">Share Gallery</h3>
+                <button onClick={() => setShowQrModal(false)} className="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
+                  <FontAwesomeIcon icon={faTimes} className="w-5 h-5" />
+                </button>
+              </div>
+              {qrCodeUrl && (
+                <img src={qrCodeUrl} alt="QR Code" className="w-full rounded-lg" />
+              )}
+              <p className="text-sm text-gray-600 dark:text-gray-400 mt-4 text-center">
+                Scan to view this gallery
+              </p>
+            </div>
+          </div>
+        )}
       </div>
 
       <style jsx global>{`
