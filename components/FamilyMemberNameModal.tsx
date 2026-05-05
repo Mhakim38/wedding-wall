@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHeart, faCheck, faFamily } from '@fortawesome/free-solid-svg-icons';
+import { faHeart, faCheck, faUsers } from '@fortawesome/free-solid-svg-icons';
 import Link from 'next/link';
 
 interface FamilyMemberNameModalProps {
@@ -60,7 +60,7 @@ export default function FamilyMemberNameModal({ onNameSubmit, sessionId }: Famil
         {/* Decorative Family Icon */}
         <div className="absolute -top-8 left-1/2 transform -translate-x-1/2">
           <div className="bg-gradient-to-br from-purple-400 to-pink-500 rounded-full p-4 shadow-lg animate-bounce">
-            <FontAwesomeIcon icon={faFamily} className="w-6 h-6 text-white" />
+            <FontAwesomeIcon icon={faUsers} className="w-6 h-6 text-white" />
           </div>
         </div>
 
