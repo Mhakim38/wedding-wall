@@ -260,10 +260,6 @@ function GalleryContent() {
         />
       )}
       
-      {/* Header removed - using global Navbar */}
-      <div className="pt-20"> {/* Add padding for fixed navbar */}
-      </div>
-
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-8 py-12">
         {/* FAB Upload Button - Replaces Top Button */}
