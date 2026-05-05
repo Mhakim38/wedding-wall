@@ -256,7 +256,7 @@ function GalleryContent() {
               {/* Wedding Code Badge (Spotlight) */}
               {sessionCode && (
                 <div className="flex flex-col items-center gap-2 w-full max-w-sm">
-                  {/* Code Box - Glass Container */}
+                  {/* Code Box */}
                   <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border border-orange-200 dark:border-orange-500/30 rounded-2xl px-6 py-4 shadow-warm-md w-full flex flex-col items-center justify-center">
                     <p className="text-xs uppercase tracking-widest text-gray-500 dark:text-gray-400 font-bold mb-1 text-center">Wedding Code</p>
                     <div className="flex items-center justify-center gap-3">
