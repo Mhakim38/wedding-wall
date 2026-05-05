@@ -3,7 +3,7 @@
 import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCamera, faCopy, faQrcode, faTimes, faTrash, faRightFromBracket } from '@fortawesome/free-solid-svg-icons';
+import { faCamera, faCopy, faQrcode, faTimes, faTrash, faRightFromBracket, faCheck, faEllipsis, faGift } from '@fortawesome/free-solid-svg-icons';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import FamilyMemberNameModal from '@/components/FamilyMemberNameModal';
@@ -136,6 +136,11 @@ function FamilyGalleryContent() {
   const [showNameModal, setShowNameModal] = useState(false);
   const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
   const [showQrModal, setShowQrModal] = useState(false);
+  const [showGiftModal, setShowGiftModal] = useState(false);
+  const [sessionCode, setSessionCode] = useState('');
+  const [showOptions, setShowOptions] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [giftQrUrl, setGiftQrUrl] = useState<string>('');
 
   useEffect(() => {
     const familySessionId = localStorage.getItem('familySessionId');
@@ -288,6 +293,110 @@ function FamilyGalleryContent() {
                   </h1>
                 )}
 
+                {/* Wedding Code Badge (Spotlight) */}
+                {sessionCode && (
+                  <div className="flex flex-col items-center gap-2 w-full max-w-sm">
+                    {/* Code Box */}
+                    <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border border-orange-200 dark:border-orange-500/30 rounded-2xl px-6 py-4 shadow-warm-md w-full flex flex-col items-center justify-center">
+                      <p className="text-xs uppercase tracking-widest text-gray-500 dark:text-gray-400 font-bold mb-1 text-center">Wedding Code</p>
+                      <div className="flex items-center justify-center gap-3">
+                        <span className="text-3xl font-bold font-mono text-orange-600 dark:text-orange-400 tracking-widest">{sessionCode}</span>
+                        
+                        {/* Copy Button */}
+                        <button 
+                          onClick={() => {
+                          const text = sessionCode;
+                          if (navigator.clipboard && window.isSecureContext) {
+                            navigator.clipboard.writeText(text).then(() => {
+                              setCopied(true);
+                              setTimeout(() => setCopied(false), 2000);
+                            }).catch(err => {
+                              console.error('Async: Could not copy text: ', err);
+                            });
+                          } else {
+                            const textArea = document.createElement("textarea");
+                            textArea.value = text;
+                            textArea.style.position = "fixed";
+                            textArea.style.left = "-9999px";
+                            textArea.style.top = "0";
+                            document.body.appendChild(textArea);
+                            textArea.focus();
+                            textArea.select();
+                            try {
+                              const successful = document.execCommand('copy');
+                              if (successful) {
+                                setCopied(true);
+                                setTimeout(() => setCopied(false), 2000);
+                              }
+                            } catch (err) {
+                              console.error('Fallback: Oops, unable to copy', err);
+                            }
+                            document.body.removeChild(textArea);
+                          }
+                        }}
+                          className="rounded-full text-gray-400 active:text-green-500 transition-colors relative"
+                          title="Copy Code"
+                        >
+                          <FontAwesomeIcon 
+                            icon={copied ? faCheck : faCopy} 
+                            className={`w-5 h-5 transition-colors duration-200 ${copied ? 'text-green-500' : 'text-gray-400'}`} 
+                          />
+                          
+                          {/* Copied Tooltip */}
+                          <span className={`absolute -top-10 left-1/2 transform -translate-x-1/2 px-2 py-1 bg-gray-800 text-white text-xs rounded shadow-lg whitespace-nowrap transition-all duration-200 ${copied ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2 pointer-events-none'}`}>
+                            Copied!
+                            <span className="absolute bottom-[-4px] left-1/2 -translate-x-1/2 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-gray-800"></span>
+                          </span>
+                        </button>
+
+                        {/* Options Toggle Button */}
+                        <button 
+                          onClick={() => setShowOptions(!showOptions)}
+                          className={`rounded-full transition-all duration-200 ${showOptions ? 'text-orange-600 dark:text-orange-400 rotate-90' : 'text-gray-400 active:text-orange-500'}`}
+                          title="More Options"
+                        >
+                          <FontAwesomeIcon icon={faEllipsis} className="w-5 h-5" />
+                        </button>
+                      </div>
+                    </div>
+                  
+                    {/* Expandable Options Row */}
+                    <div className={`grid transition-all duration-300 ease-in-out w-full ${showOptions ? 'grid-rows-[1fr] opacity-100 pt-4 border-t border-gray-100 dark:border-gray-700/50 mt-2' : 'grid-rows-[0fr] opacity-0 pt-0 border-none mt-0'}`}>
+                      <div className="overflow-hidden">
+                        <div className="flex items-center justify-center gap-6">
+                          {/* QR Code Icon Button */}
+                          {qrCodeUrl && (
+                            <button
+                              onClick={() => setShowQrModal(true)}
+                              className="flex flex-col items-center gap-2 group"
+                              title="Show Join QR"
+                            >
+                              <div className="p-3 rounded-full bg-gray-50 dark:bg-gray-700/50 group-hover:bg-orange-50 dark:group-hover:bg-orange-900/20 text-gray-600 dark:text-gray-300 group-hover:text-orange-500 transition-colors">
+                                <FontAwesomeIcon icon={faQrcode} className="w-5 h-5" />
+                              </div>
+                              <span className="text-[10px] font-medium text-gray-500 uppercase tracking-wider">Join</span>
+                            </button>
+                          )}
+
+                          {/* Gift QR Icon Button */}
+                          {giftQrUrl && (
+                            <button
+                              onClick={() => setShowGiftModal(true)}
+                              className="flex flex-col items-center gap-2 group"
+                              title="Send Gift (Angpao)"
+                            >
+                              <div className="p-3 rounded-full bg-gray-50 dark:bg-gray-700/50 group-hover:bg-red-50 dark:group-hover:bg-red-900/20 text-gray-600 dark:text-gray-300 group-hover:text-red-500 transition-colors">
+                                <FontAwesomeIcon icon={faGift} className="w-5 h-5" />
+                              </div>
+                              <span className="text-[10px] font-medium text-gray-500 uppercase tracking-wider">Gift</span>
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 {/* Family Member Badge - Glass Container */}
                 {currentFamilyMember && (
                   <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border border-orange-200 dark:border-orange-500/30 rounded-2xl px-6 py-4 shadow-warm-md w-full max-w-sm flex flex-col items-center justify-center">
@@ -390,6 +499,24 @@ function FamilyGalleryContent() {
               )}
               <p className="text-sm text-gray-600 dark:text-gray-400 mt-4 text-center">
                 Scan to view this gallery
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Gift QR Modal */}
+        {showGiftModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+            <div className="bg-white dark:bg-gray-900 rounded-3xl p-8 max-w-sm w-full">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white">Send Gift 🎁</h3>
+                <button onClick={() => setShowGiftModal(false)} className="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
+                  <FontAwesomeIcon icon={faTimes} className="w-5 h-5" />
+                </button>
+              </div>
+              <img src={giftQrUrl || ''} alt="Gift QR Code" className="w-full rounded-lg" />
+              <p className="text-sm text-gray-600 dark:text-gray-400 mt-4 text-center">
+                Scan to send an Angpao 💝
               </p>
             </div>
           </div>
