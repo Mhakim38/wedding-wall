@@ -15,6 +15,7 @@ import {
   faMoon,
   faSun
 } from '@fortawesome/free-solid-svg-icons';
+import { useTheme } from '@/hooks/useTheme';
 
 export default function Navbar() {
   return (
@@ -27,8 +28,7 @@ export default function Navbar() {
 function NavbarContent() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [isDarkMode, setIsDarkMode] = useState(false);
-  const [mounted, setMounted] = useState(false);
+  const { isDark, toggleTheme, mounted } = useTheme();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const sessionId = searchParams.get('sessionId');
@@ -42,7 +42,6 @@ function NavbarContent() {
 
   // Handle scroll effect and initial theme check
   useEffect(() => {
-    setMounted(true);
     const handleScroll = () => {
       setScrolled(window.scrollY > 20);
     };
@@ -52,14 +51,8 @@ function NavbarContent() {
   }, []);
 
   // Toggle Dark Mode
-  const toggleDarkMode = () => {
-    if (isDarkMode) {
-      document.documentElement.classList.remove('dark');
-      setIsDarkMode(false);
-    } else {
-      document.documentElement.classList.add('dark');
-      setIsDarkMode(true);
-    }
+  const handleToggleDarkMode = () => {
+    toggleTheme();
   };
 
   const navItems = isHomePage ? [
@@ -109,11 +102,11 @@ function NavbarContent() {
               
               {/* Dark Mode Toggle */}
               <button
-                onClick={toggleDarkMode}
+                onClick={handleToggleDarkMode}
                 className="ml-2 p-2 rounded-full text-gray-600 dark:text-gray-300 hover:bg-orange-50 dark:hover:bg-white/10 hover:text-orange-600 dark:hover:text-white transition-all"
                 aria-label="Toggle Dark Mode"
               >
-                <FontAwesomeIcon icon={isDarkMode ? faSun : faMoon} className="text-lg" />
+                <FontAwesomeIcon icon={isDark ? faSun : faMoon} className="text-lg" />
               </button>
             </div>
 
@@ -121,10 +114,10 @@ function NavbarContent() {
             <div className="flex items-center space-x-2 md:hidden">
               {/* Dark Mode Toggle (Mobile) */}
               <button
-                onClick={toggleDarkMode}
+                onClick={handleToggleDarkMode}
                 className="p-2 rounded-full text-gray-700 dark:text-gray-300 hover:bg-orange-50 dark:hover:bg-white/10 transition-all"
               >
-                <FontAwesomeIcon icon={isDarkMode ? faSun : faMoon} className="text-lg" />
+                <FontAwesomeIcon icon={isDark ? faSun : faMoon} className="text-lg" />
               </button>
               
               {/* Menu Button */}
