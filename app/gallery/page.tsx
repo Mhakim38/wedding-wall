@@ -3,11 +3,10 @@
 import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCamera, faCheck, faCopy, faQrcode, faTimes, faEllipsis, faGift } from '@fortawesome/free-solid-svg-icons';
+import { faMoon, faSun, faCamera, faHome, faCheck, faCopy, faQrcode, faTimes, faGift, faEllipsis } from '@fortawesome/free-solid-svg-icons';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import WelcomeNameModal from '@/components/WelcomeNameModal';
-import Navbar from '@/components/Navbar';
 
 import QRCode from 'qrcode';
 
@@ -104,42 +103,99 @@ function GalleryContent() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
+  // Check if guest name exists in localStorage
   useEffect(() => {
     const savedName = localStorage.getItem('guestName');
     if (!savedName) {
       setShowNameModal(true);
     }
+  }, []);
 
+  useEffect(() => {
     if (!sessionId) return;
 
     const fetchSessionData = async () => {
       try {
-        setLoading(true);
-        const response = await fetch(`/api/photos?sessionId=${sessionId}`);
+        // Fetch session details (code, name)
+        const sessionRes = await fetch(`/api/session?sessionId=${sessionId}`);
+        if (sessionRes.ok) {
+          const sessionData = await sessionRes.json();
+          
+          // Check if gallery is still active (subscription not expired)
+          const subscriptionEndDate = new Date(sessionData.subscriptionEndDate);
+          if (new Date() > subscriptionEndDate) {
+            setError('This gallery has expired. Thank you for celebrating with us!');
+            setPhotos([]);
+            setLoading(false);
+            return;
+          }
+          
+          setSessionCode(sessionData.code);
+          setEventName(sessionData.eventName);
+          if (sessionData.giftQrCodeUrl) {
+            setGiftQrUrl(sessionData.giftQrCodeUrl);
+          }
+
+          // Generate QR Code for the session URL
+          try {
+            const currentUrl = `${window.location.origin}/?code=${sessionData.code}`;
+            const qrDataUrl = await QRCode.toDataURL(currentUrl, {
+              width: 200,
+              margin: 2,
+              color: {
+                dark: '#000000',
+                light: '#ffffff00', // Transparent background
+              },
+            });
+            setQrCodeUrl(qrDataUrl);
+          } catch (qrErr) {
+            console.error('QR Generation failed', qrErr);
+          }
+        }
+
+        // Fetch photos (Initial load - Page 1)
+        const response = await fetch(`/api/photos?sessionId=${sessionId}&page=1&limit=12`);
         if (response.ok) {
           const data = await response.json();
           setPhotos(data.photos);
-          setSessionCode(data.sessionCode || '');
-          setEventName(data.eventName || '');
-
-          // Generate QR codes
-          if (data.joinUrl) {
-            const url = await QRCode.toDataURL(data.joinUrl);
-            setQrCodeUrl(url);
-          }
-          if (data.giftQrUrl) {
-            setGiftQrUrl(data.giftQrUrl);
-          }
+          setHasMore(data.pagination.hasMore);
+          setPage(1); // Reset page to 1
+          setError('');
+        } else {
+          const errorData = await response.json();
+          setError(errorData.error || 'Failed to load photos');
+          setPhotos([]);
         }
       } catch (err) {
-        setError('Failed to load gallery');
-        console.error(err);
+        console.error('Failed to fetch data:', err);
+        setError('Network error: Check your connection and try again');
+        setPhotos([]);
       } finally {
         setLoading(false);
       }
     };
 
+    // Fetch initially
     fetchSessionData();
+
+    // Poll every 5 seconds for new photos (Refreshes first page only to check for updates)
+    const interval = setInterval(async () => {
+        // Only poll if we are at the top and not fetching more
+        if (window.scrollY < 100 && !isFetchingMore) {
+          const response = await fetch(`/api/photos?sessionId=${sessionId}&page=1&limit=12`);
+          if (response.ok) {
+            const data = await response.json();
+            // Merge new photos at the top if they are different
+            setPhotos(prevPhotos => {
+              const newPhotoIds = new Set(data.photos.map((p: Photo) => p.id));
+              const existingPhotos = prevPhotos.filter(p => !newPhotoIds.has(p.id));
+              return [...data.photos, ...existingPhotos];
+            });
+          }
+        }
+    }, 5000); // Increased polling interval to 5s to reduce load
+    
+    return () => clearInterval(interval);
   }, [sessionId]);
 
   // Infinite Scroll Handler
@@ -170,6 +226,7 @@ function GalleryContent() {
       if (response.ok) {
         const data = await response.json();
         setPhotos(prev => {
+          // Filter out duplicates (photos that might have shifted pages or already exist)
           const existingIds = new Set(prev.map(p => p.id));
           const uniqueNewPhotos = data.photos.filter((p: Photo) => !existingIds.has(p.id));
           return [...prev, ...uniqueNewPhotos];
@@ -194,9 +251,6 @@ function GalleryContent() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-pink-50 dark:from-gray-900 dark:via-black dark:to-gray-900">
-      {/* Navbar - Inside Page */}
-      <Navbar />
-
       {/* Welcome Name Modal */}
       {showNameModal && (
         <WelcomeNameModal 
@@ -205,10 +259,14 @@ function GalleryContent() {
           }} 
         />
       )}
+      
+      {/* Header removed - using global Navbar */}
+      <div className="pt-20"> {/* Add padding for fixed navbar */}
+      </div>
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-8 py-12">
-        {/* FAB Upload Button */}
+        {/* FAB Upload Button - Replaces Top Button */}
         <div className="fixed bottom-6 right-6 z-50">
           <Link href={`/gallery/upload?sessionId=${sessionId}`}>
             <Button className="h-14 w-14 rounded-full p-0 bg-gradient-to-r from-orange-500 to-pink-500 text-white shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 md:w-auto md:px-6">
@@ -266,6 +324,7 @@ function GalleryContent() {
                       <button 
                         onClick={() => {
                         const text = sessionCode;
+                        // Robust clipboard copy with fallback for mobile/PWA/non-secure contexts
                         if (navigator.clipboard && window.isSecureContext) {
                           navigator.clipboard.writeText(text).then(() => {
                             setCopied(true);
@@ -274,9 +333,10 @@ function GalleryContent() {
                             console.error('Async: Could not copy text: ', err);
                           });
                         } else {
+                          // Fallback: TextArea hack
                           const textArea = document.createElement("textarea");
                           textArea.value = text;
-                          textArea.style.position = "fixed";
+                          textArea.style.position = "fixed";  // Avoid scrolling to bottom
                           textArea.style.left = "-9999px";
                           textArea.style.top = "0";
                           document.body.appendChild(textArea);
@@ -287,6 +347,8 @@ function GalleryContent() {
                             if (successful) {
                               setCopied(true);
                               setTimeout(() => setCopied(false), 2000);
+                            } else {
+                              console.error('Fallback: Copying text command was unsuccessful');
                             }
                           } catch (err) {
                             console.error('Fallback: Oops, unable to copy', err);
@@ -294,7 +356,7 @@ function GalleryContent() {
                           document.body.removeChild(textArea);
                         }
                       }}
-                      className="rounded-full text-gray-400 active:text-green-500 transition-colors relative"
+                      className="rounded-full text-gray-400 active:text-green-500 transition-colors"
                       title="Copy Code"
                     >
                       <FontAwesomeIcon 
@@ -392,61 +454,63 @@ function GalleryContent() {
         )}
       </main>
 
-      {/* QR Code Modal */}
+      {/* QR Modal - Placed at root level to avoid clipping */}
       {showQrModal && qrCodeUrl && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-          <div className="bg-white dark:bg-gray-900 rounded-3xl p-8 max-w-sm w-full">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xl font-bold text-gray-900 dark:text-white">Join Gallery</h3>
-              <button onClick={() => setShowQrModal(false)} className="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
-                <FontAwesomeIcon icon={faTimes} className="w-5 h-5" />
-              </button>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200" onClick={() => setShowQrModal(false)}>
+          <div className="bg-white dark:bg-gray-900 p-8 rounded-3xl shadow-2xl max-w-sm w-full relative transform scale-100 transition-transform border border-gray-200 dark:border-gray-700" onClick={e => e.stopPropagation()}>
+            <button 
+              onClick={() => setShowQrModal(false)}
+              className="absolute top-4 right-4 p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
+            >
+              <FontAwesomeIcon icon={faTimes} className="w-6 h-6" />
+            </button>
+            
+            <div className="text-center space-y-6 pt-2">
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-white font-serif">Scan to Join</h3>
+              <div className="bg-white p-6 rounded-2xl shadow-inner border border-gray-100 inline-block w-full flex justify-center">
+                <img src={qrCodeUrl} alt="Scan to Join" className="w-64 h-64 object-contain mix-blend-multiply" />
+              </div>
+              <p className="text-base text-gray-500 dark:text-gray-400 font-medium px-4">
+                Ask guests to scan this code to join the gallery instantly
+              </p>
             </div>
-            <img src={qrCodeUrl} alt="QR Code" className="w-full rounded-lg" />
-            <p className="text-sm text-gray-600 dark:text-gray-400 mt-4 text-center">
-              Scan to join the gallery
-            </p>
           </div>
         </div>
       )}
 
       {/* Gift QR Modal */}
-      {showGiftModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-          <div className="bg-white dark:bg-gray-900 rounded-3xl p-8 max-w-sm w-full">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xl font-bold text-gray-900 dark:text-white">Send Gift 🎁</h3>
-              <button onClick={() => setShowGiftModal(false)} className="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
-                <FontAwesomeIcon icon={faTimes} className="w-5 h-5" />
-              </button>
+      {showGiftModal && giftQrUrl && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200" onClick={() => setShowGiftModal(false)}>
+          <div className="bg-white dark:bg-gray-900 p-8 rounded-3xl shadow-2xl max-w-sm w-full relative transform scale-100 transition-transform border border-gray-200 dark:border-gray-700" onClick={e => e.stopPropagation()}>
+            <button 
+              onClick={() => setShowGiftModal(false)}
+              className="absolute top-4 right-4 p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
+            >
+              <FontAwesomeIcon icon={faTimes} className="w-6 h-6" />
+            </button>
+            
+            <div className="text-center space-y-6 pt-2">
+              <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 mb-2">
+                <FontAwesomeIcon icon={faGift} className="w-6 h-6" />
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-white font-serif">Wedding Gift</h3>
+              <div className="bg-white p-4 rounded-2xl shadow-inner border border-gray-100 inline-block w-full flex justify-center aspect-square items-center overflow-hidden">
+                <img src={giftQrUrl} alt="Scan to Send Gift" className="w-full h-full object-contain mix-blend-multiply" />
+              </div>
+              <p className="text-base text-gray-500 dark:text-gray-400 font-medium px-4">
+                Scan via e-wallet to send a gift directly to the couple
+              </p>
             </div>
-            <img src={giftQrUrl || ''} alt="Gift QR Code" className="w-full rounded-lg" />
-            <p className="text-sm text-gray-600 dark:text-gray-400 mt-4 text-center">
-              Scan to send an Angpao 💝
-            </p>
           </div>
         </div>
       )}
-
-      <style jsx global>{`
-        @keyframes fadeInUp {
-          from {
-            opacity: 0;
-            transform: translateY(10px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-      `}</style>
     </div>
   );
 }
 
 export default function GalleryPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+    <Suspense fallback={<div>Loading...</div>}>
       <GalleryContent />
     </Suspense>
   );

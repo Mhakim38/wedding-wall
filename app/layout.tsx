@@ -65,6 +65,7 @@ export default function RootLayout({
       <body
         className={`${poppins.variable} ${playfairDisplay.variable} ${geistSans.variable} ${geistMono.variable} antialiased bg-white font-poppins dark:bg-black dark:text-white`}
       >
+        <Navbar />
         {children}
         <script
           dangerouslySetInnerHTML={{
