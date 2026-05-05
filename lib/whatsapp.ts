@@ -35,7 +35,7 @@ export function generateWhatsAppMessage(data: WhatsAppMessage): string {
     day: 'numeric',
   });
 
-  const appUrl = data.appUrl || 'https://wedding-wall.com/family-panel';
+  const appUrl = data.appUrl || 'https://wedding-wall.vercel.app/family-panel/login';
 
   return `🎊 Wedding Family Panel Access
 

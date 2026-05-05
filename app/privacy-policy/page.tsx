@@ -1,6 +1,6 @@
 export default function PrivacyPolicy() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-pink-50 dark:from-gray-900 dark:via-black dark:to-gray-900 py-16">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-pink-50 dark:from-gray-900 dark:via-black dark:to-gray-900 pt-32 pb-16">
       <div className="max-w-4xl mx-auto px-4 md:px-8">
         <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2" style={{ fontFamily: 'var(--font-playfair)' }}>
           Privacy Policy
@@ -143,9 +143,11 @@ export default function PrivacyPolicy() {
               If you have questions about this Privacy Policy or wish to exercise your rights under PDPA, please contact us at:
             </p>
             <p className="mt-4">
-              <strong>Wedding Wall Data Protection Officer</strong>
+              <strong>Wedding Wall Customer Support</strong>
               <br />
-              Email: privacy@wedding-wall.com
+              Email: santaikuppi@gmail.com
+              <br />
+              Website: <a href="https://wedding-wall.vercel.app" className="text-orange-500 hover:text-orange-600 dark:hover:text-orange-400 underline">https://wedding-wall.vercel.app</a>
               <br />
               Response Time: Within 30 days
             </p>

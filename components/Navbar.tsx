@@ -75,7 +75,7 @@ function NavbarContent() {
   }
 
   return (
-    <nav className={`fixed top-0 left-0 right-0 z-50 px-4 py-4 md:px-8 transition-all duration-300 ${scrolled ? 'py-2' : 'py-4'}`} style={{ paddingTop: `max(1rem, env(safe-area-inset-top))` }}>
+    <nav className={`px-4 py-4 md:px-8 transition-all duration-300 ${scrolled ? 'py-2' : 'py-4'}`} style={{ paddingTop: `max(1rem, env(safe-area-inset-top))` }}>
       <div className="max-w-7xl mx-auto">
         {/* Glassy pill navigation */}
         <div className={`backdrop-blur-xl border border-white/40 dark:border-white/10 rounded-3xl px-6 py-3 shadow-warm-lg transition-all duration-300 ${scrolled ? 'bg-white/90 dark:bg-black/80 shadow-xl' : 'bg-white/60 dark:bg-black/40'}`}>

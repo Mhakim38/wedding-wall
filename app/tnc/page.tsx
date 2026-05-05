@@ -1,6 +1,6 @@
 export default function TermsAndConditions() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-pink-50 dark:from-gray-900 dark:via-black dark:to-gray-900 py-16">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-pink-50 dark:from-gray-900 dark:via-black dark:to-gray-900 pt-32 pb-16">
       <div className="max-w-4xl mx-auto px-4 md:px-8">
         <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2" style={{ fontFamily: 'var(--font-playfair)' }}>
           Terms and Conditions
@@ -118,9 +118,11 @@ export default function TermsAndConditions() {
             <p>
               For questions or concerns regarding these Terms and Conditions, please contact us at:
               <br />
-              <strong>Wedding Wall Support</strong>
+              <strong>Wedding Wall Customer Support</strong>
               <br />
-              Email: support@wedding-wall.com
+              Email: santaikuppi@gmail.com
+              <br />
+              Website: <a href="https://wedding-wall.vercel.app" className="text-orange-500 hover:text-orange-600 dark:hover:text-orange-400 underline">https://wedding-wall.vercel.app</a>
             </p>
           </section>
 
